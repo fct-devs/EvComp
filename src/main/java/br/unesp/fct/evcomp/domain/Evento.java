@@ -33,6 +33,12 @@ public class Evento {
     @Column(name = "tipo_contabilizacao", nullable = false)
     private TipoContabilizacao tipoContabilizacao;
 
+    @Column(name = "chave_pix")
+    private String chavePix;
+
+    @Column(name = "valor_inscricao", precision = 10, scale = 2)
+    private java.math.BigDecimal valorInscricao;
+
     @Transient
     private Atividade[] atividade;
 
@@ -57,11 +63,22 @@ public class Evento {
         map.put("descricao", this.descricao);
         map.put("link", this.link);
         map.put("tipoContabilizacao", this.tipoContabilizacao);
-    
+        map.put("chavePix", this.chavePix);
+        map.put("valorInscricao", this.valorInscricao);
+
         return map;
     }
 
+    public boolean ehPago() {
+        return this.valorInscricao != null
+            && this.valorInscricao.compareTo(java.math.BigDecimal.ZERO) > 0;
+    }
+
     public static Evento criarEvento(String titulo, LocalDate dataInicio, LocalDate dataTermino, String descricao, String link, TipoContabilizacao tipo) {
+        return criarEvento(titulo, dataInicio, dataTermino, descricao, link, tipo, null, null);
+    }
+
+    public static Evento criarEvento(String titulo, LocalDate dataInicio, LocalDate dataTermino, String descricao, String link, TipoContabilizacao tipo, String chavePix, java.math.BigDecimal valorInscricao) {
         Evento evento = new Evento();
 
         evento.setTitulo(titulo);
@@ -70,6 +87,8 @@ public class Evento {
         evento.setDescricao(descricao);
         evento.setLink(link);
         evento.setTipoContabilizacao(tipo);
+        evento.setChavePix(chavePix);
+        evento.setValorInscricao(valorInscricao);
 
         return evento;
     }
@@ -131,6 +150,22 @@ public class Evento {
 
     public void setTipoContabilizacao(TipoContabilizacao tipoContabilizacao) {
         this.tipoContabilizacao = tipoContabilizacao;
+    }
+
+    public String getChavePix() {
+        return chavePix;
+    }
+
+    public void setChavePix(String chavePix) {
+        this.chavePix = chavePix;
+    }
+
+    public java.math.BigDecimal getValorInscricao() {
+        return valorInscricao;
+    }
+
+    public void setValorInscricao(java.math.BigDecimal valorInscricao) {
+        this.valorInscricao = valorInscricao;
     }
 
 }

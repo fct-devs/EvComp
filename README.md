@@ -34,6 +34,31 @@ Para ligar a API e o Banco de Dados, siga os seguintes passos:
 > **Atenção sobre a Ordem de Execução:** 
 > O Backend **DEVE** estar rodando antes que você inicie o Frontend (`EvComp-Front`). O Frontend depende da rede interna deste repositório (`evcomp_default`) para se conectar à API de forma correta!
 
+### Armazenamento dos comprovantes de pagamento
+
+O módulo de pagamento guarda o comprovante enviado pelo participante através de uma estratégia
+configurável, definida por `pagamento.armazenamento`:
+
+| Valor | Onde grava | Observação |
+|---|---|---|
+| `BANCO` (padrão) | BLOB na tabela `comprovante_blob` | Persiste no volume `evcomp_db_data` e sai junto no dump do banco. Não exige nenhuma configuração extra. |
+| `DISCO` | `uploads/comprovantes/` | **Exige mapear um volume** (veja abaixo), senão os arquivos somem a cada rebuild. |
+| `S3` | — | Ainda não implementado; falha na inicialização do upload. |
+
+Para usar `DISCO`, defina `PAGAMENTO_ARMAZENAMENTO=DISCO` e acrescente o volume ao serviço `api`
+no `docker-compose.yml` — o contêiner da API não tem volume por padrão e seu sistema de arquivos
+é descartado a cada `docker compose up --build`:
+
+```yaml
+  api:
+    volumes:
+      - ./uploads:/app/uploads
+```
+
+Comprovantes já enviados continuam legíveis mesmo depois de trocar a estratégia: cada pagamento
+registra em qual armazenamento seu arquivo foi gravado. O limite é de **1 MB por comprovante**
+(WebP, JPEG, PNG ou PDF).
+
 ## Estrutura do Repositório
 
 - **src/**: Código-fonte da aplicação Java (Controllers, Services, Repositories e Domains).

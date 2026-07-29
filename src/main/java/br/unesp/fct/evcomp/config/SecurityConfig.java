@@ -66,6 +66,13 @@ public class SecurityConfig {
                 // Participantes: Visualização apenas para ADMIN
                 .requestMatchers(HttpMethod.GET, "/api/participantes/**").hasRole("ADMIN")
 
+                // Pagamentos: fila de conferência e avaliação de comprovante somente ADMIN.
+                // O restante (consulta e upload do próprio comprovante) cai em authenticated()
+                // e tem a checagem de dono feita dentro do PagamentoController.
+                .requestMatchers(HttpMethod.GET, "/api/pagamentos/pendentes").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.GET, "/api/pagamentos/evento/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.PATCH, "/api/pagamentos/*/status").hasRole("ADMIN")
+
                 // Todo o resto: precisa estar autenticado
                 .anyRequest().authenticated()
             )
@@ -84,7 +91,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOrigins(List.of("http://localhost:3000"));
-        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setExposedHeaders(List.of("Content-Disposition"));
         config.setAllowCredentials(true);

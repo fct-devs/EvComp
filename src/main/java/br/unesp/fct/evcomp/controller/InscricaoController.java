@@ -8,6 +8,7 @@ import br.unesp.fct.evcomp.repository.AtividadeRepository;
 import br.unesp.fct.evcomp.repository.EventoRepository;
 import br.unesp.fct.evcomp.repository.InscricaoRepository;
 import br.unesp.fct.evcomp.repository.ParticipanteRepository;
+import br.unesp.fct.evcomp.service.pagamento.PagamentoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -28,13 +29,15 @@ public class InscricaoController {
     private final ParticipanteRepository participanteRepository;
     private final EventoRepository eventoRepository;
     private final AtividadeRepository atividadeRepository;
+    private final PagamentoService pagamentoService;
 
     @Autowired
-    public InscricaoController(InscricaoRepository inscricaoRepository, ParticipanteRepository participanteRepository, EventoRepository eventoRepository, AtividadeRepository atividadeRepository) {
+    public InscricaoController(InscricaoRepository inscricaoRepository, ParticipanteRepository participanteRepository, EventoRepository eventoRepository, AtividadeRepository atividadeRepository, PagamentoService pagamentoService) {
         this.inscricaoRepository = inscricaoRepository;
         this.participanteRepository = participanteRepository;
         this.eventoRepository = eventoRepository;
         this.atividadeRepository = atividadeRepository;
+        this.pagamentoService = pagamentoService;
     }
 
     @PostMapping
@@ -101,6 +104,10 @@ public class InscricaoController {
         }
 
         inscricaoRepository.salvarInscricao(inscricao);
+
+        // Cria o pagamento já na inscrição (vazio, sem comprovante) para que o participante
+        // possa enviar o comprovante depois, em outro momento, sem refazer a inscrição.
+        pagamentoService.obterOuCriar(inscricao);
 
         return ResponseEntity.ok(br.unesp.fct.evcomp.dto.InscricaoResponseDTO.fromEntity(inscricao));
     }

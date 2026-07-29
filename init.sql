@@ -34,6 +34,8 @@ CREATE TABLE `evento` (
   `descricao` text NOT NULL,
   `link` varchar(255) DEFAULT NULL,
   `tipo_contabilizacao` varchar(20) NOT NULL,
+  `chave_pix` varchar(255) DEFAULT NULL,
+  `valor_inscricao` decimal(10,2) DEFAULT NULL,
   PRIMARY KEY (`idEvento`),
   UNIQUE KEY `titulo_UNIQUE` (`titulo`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
@@ -137,6 +139,35 @@ CREATE TABLE `certificado` (
   CONSTRAINT `fk_Certificado_Usuário1` FOREIGN KEY (`idUsuário`) REFERENCES `usuário` (`idUsuário`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
+DROP TABLE IF EXISTS `comprovante_blob`;
+CREATE TABLE `comprovante_blob` (
+  `idComprovanteBlob` int NOT NULL AUTO_INCREMENT,
+  `conteudo` mediumblob NOT NULL,
+  PRIMARY KEY (`idComprovanteBlob`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+
+DROP TABLE IF EXISTS `pagamento`;
+CREATE TABLE `pagamento` (
+  `idPagamento` int NOT NULL AUTO_INCREMENT,
+  `idInscrição` int NOT NULL,
+  `status_pagamento` varchar(20) NOT NULL,
+  `armazenamento_tipo` varchar(20) DEFAULT NULL,
+  `armazenamento_ref` varchar(255) DEFAULT NULL,
+  `nome_arquivo_original` varchar(255) DEFAULT NULL,
+  `tipo_arquivo` varchar(100) DEFAULT NULL,
+  `tamanho_arquivo` int DEFAULT NULL,
+  `data_envio` datetime DEFAULT NULL,
+  `data_avaliacao` datetime DEFAULT NULL,
+  `idUsuário_avaliador` int DEFAULT NULL,
+  `motivo_recusa` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`idPagamento`),
+  UNIQUE KEY `uk_pagamento_inscrição` (`idInscrição`),
+  KEY `idx_pagamento_status` (`status_pagamento`),
+  KEY `fk_Pagamento_Usuário1_idx` (`idUsuário_avaliador`),
+  CONSTRAINT `fk_Pagamento_Inscrição` FOREIGN KEY (`idInscrição`) REFERENCES `inscrição` (`idInscrição`) ON DELETE CASCADE,
+  CONSTRAINT `fk_Pagamento_Usuário1` FOREIGN KEY (`idUsuário_avaliador`) REFERENCES `usuário` (`idUsuário`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+
 -- ------------------------------------------------------
 -- DML - INSERÇÃO DE DADOS MOCK (SEED)
 -- ------------------------------------------------------
@@ -150,10 +181,10 @@ INSERT INTO `usuário` (`idUsuário`, `nome_completo`, `email`, `senha_hash`, `t
 UNLOCK TABLES;
 
 LOCK TABLES `evento` WRITE;
-INSERT INTO `evento` (`idEvento`, `titulo`, `data_inicio`, `data_termino`, `descricao`, `link`, `tipo_contabilizacao`) VALUES
-(1, 'Semana da Computação 2027', '2027-08-10', '2027-08-15', 'Evento Futuro para testes de Inscrição e Gestão.', 'http://secomp2027.com.br', 'POR_ATIVIDADE'),
-(2, 'Workshop de IA 2025', '2025-05-10', '2025-05-12', 'Evento Passado para testes de Certificados e Relatórios.', '', 'POR_CARGA_TOTAL'),
-(3, 'Hackathon de Testes', CURDATE(), CURDATE(), 'Evento Ocorrendo Hoje para testar Registro de Presença com Coletor.', '', 'POR_ATIVIDADE');
+INSERT INTO `evento` (`idEvento`, `titulo`, `data_inicio`, `data_termino`, `descricao`, `link`, `tipo_contabilizacao`, `chave_pix`, `valor_inscricao`) VALUES
+(1, 'Semana da Computação 2027', '2027-08-10', '2027-08-15', 'Evento Futuro para testes de Inscrição e Gestão.', 'http://secomp2027.com.br', 'POR_ATIVIDADE', 'secomp@fct.unesp.br', 40.00),
+(2, 'Workshop de IA 2025', '2025-05-10', '2025-05-12', 'Evento Passado para testes de Certificados e Relatórios.', '', 'POR_CARGA_TOTAL', '12345678000199', 25.50),
+(3, 'Hackathon de Testes', CURDATE(), CURDATE(), 'Evento Ocorrendo Hoje para testar Registro de Presença com Coletor.', '', 'POR_ATIVIDADE', NULL, NULL);
 UNLOCK TABLES;
 
 LOCK TABLES `atividade` WRITE;
@@ -171,13 +202,17 @@ UNLOCK TABLES;
 LOCK TABLES `inscrição` WRITE;
 INSERT INTO `inscrição` (`idInscrição`, `data_inscricao`, `status`, `idUsuário`, `idEvento`) VALUES
 (1, NOW(), 1, 2, 2),
-(2, NOW(), 1, 2, 3);
+(2, NOW(), 1, 2, 3),
+(3, NOW(), 1, 4, 1),
+(4, NOW(), 1, 4, 2);
 UNLOCK TABLES;
 
 LOCK TABLES `inscrição_atividade` WRITE;
 INSERT INTO `inscrição_atividade` (`idInscrição`, `idAtividade`) VALUES
 (1, 2),
-(2, 3);
+(2, 3),
+(3, 1),
+(4, 2);
 UNLOCK TABLES;
 
 LOCK TABLES `coletor_presença` WRITE;
@@ -189,6 +224,20 @@ UNLOCK TABLES;
 LOCK TABLES `presença` WRITE;
 INSERT INTO `presença` (`idPresença`, `idAtividade`, `idUsuário`, `data_registro`, `presente`) VALUES
 (1, 2, 2, '2025-05-10 15:00:00', 1);
+UNLOCK TABLES;
+
+LOCK TABLES `comprovante_blob` WRITE;
+INSERT INTO `comprovante_blob` (`idComprovanteBlob`, `conteudo`) VALUES
+(1, UNHEX('89504E470D0A1A0A0000000D49484452000000010000000108060000001F15C4890000000A49444154789C63000100000500010D0A2DB40000000049454E44AE426082')),
+(2, UNHEX('89504E470D0A1A0A0000000D49484452000000010000000108060000001F15C4890000000A49444154789C63000100000500010D0A2DB40000000049454E44AE426082'));
+UNLOCK TABLES;
+
+LOCK TABLES `pagamento` WRITE;
+INSERT INTO `pagamento` (`idPagamento`, `idInscrição`, `status_pagamento`, `armazenamento_tipo`, `armazenamento_ref`, `nome_arquivo_original`, `tipo_arquivo`, `tamanho_arquivo`, `data_envio`, `data_avaliacao`, `idUsuário_avaliador`, `motivo_recusa`) VALUES
+(1, 1, 'PENDENTE', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(2, 2, 'ISENTO', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(3, 3, 'APROVADO', 'BANCO', '1', 'comprovante-aprovado.png', 'image/png', 70, NOW(), NOW(), 1, NULL),
+(4, 4, 'RECUSADO', 'BANCO', '2', 'comprovante-ilegivel.png', 'image/png', 70, NOW(), NOW(), 1, 'Comprovante ilegível: o valor transferido não está visível.');
 UNLOCK TABLES;
 
 SET SQL_MODE=@OLD_SQL_MODE;

@@ -26,6 +26,12 @@ public class EventoRequestDTO {
     @NotNull(message = "A data de término é obrigatória.")
     private String dataTermino;
 
+    @NotNull(message = "A data de início das inscrições é obrigatória.")
+    private String dataInicioInscricao;
+
+    @NotNull(message = "A data de término das inscrições é obrigatória.")
+    private String dataFimInscricao;
+
     public String getTitulo() { return titulo; }
     public void setTitulo(String titulo) { this.titulo = titulo; }
 
@@ -43,4 +49,10 @@ public class EventoRequestDTO {
 
     public String getDataTermino() { return dataTermino; }
     public void setDataTermino(String dataTermino) { this.dataTermino = dataTermino; }
+
+    public String getDataInicioInscricao() { return dataInicioInscricao; }
+    public void setDataInicioInscricao(String dataInicioInscricao) { this.dataInicioInscricao = dataInicioInscricao; }
+
+    public String getDataFimInscricao() { return dataFimInscricao; }
+    public void setDataFimInscricao(String dataFimInscricao) { this.dataFimInscricao = dataFimInscricao; }
 }

@@ -33,6 +33,12 @@ public class Evento {
     @Column(name = "tipo_contabilizacao", nullable = false)
     private TipoContabilizacao tipoContabilizacao;
 
+    @Column(name = "data_inicio_inscricao", nullable = false)
+    private LocalDate dataInicioInscricao;
+
+    @Column(name = "data_fim_inscricao", nullable = false)
+    private LocalDate dataFimInscricao;
+
     @Transient
     private Atividade[] atividade;
 
@@ -57,11 +63,13 @@ public class Evento {
         map.put("descricao", this.descricao);
         map.put("link", this.link);
         map.put("tipoContabilizacao", this.tipoContabilizacao);
-    
+        map.put("dataInicioInscricao", this.dataInicioInscricao);
+        map.put("dataFimInscricao", this.dataFimInscricao);
+
         return map;
     }
 
-    public static Evento criarEvento(String titulo, LocalDate dataInicio, LocalDate dataTermino, String descricao, String link, TipoContabilizacao tipo) {
+    public static Evento criarEvento(String titulo, LocalDate dataInicio, LocalDate dataTermino, String descricao, String link, TipoContabilizacao tipo, LocalDate dataInicioInscricao, LocalDate dataFimInscricao) {
         Evento evento = new Evento();
 
         evento.setTitulo(titulo);
@@ -70,6 +78,8 @@ public class Evento {
         evento.setDescricao(descricao);
         evento.setLink(link);
         evento.setTipoContabilizacao(tipo);
+        evento.setDataInicioInscricao(dataInicioInscricao);
+        evento.setDataFimInscricao(dataFimInscricao);
 
         return evento;
     }
@@ -131,6 +141,22 @@ public class Evento {
 
     public void setTipoContabilizacao(TipoContabilizacao tipoContabilizacao) {
         this.tipoContabilizacao = tipoContabilizacao;
+    }
+
+    public LocalDate getDataInicioInscricao() {
+        return dataInicioInscricao;
+    }
+
+    public void setDataInicioInscricao(LocalDate dataInicioInscricao) {
+        this.dataInicioInscricao = dataInicioInscricao;
+    }
+
+    public LocalDate getDataFimInscricao() {
+        return dataFimInscricao;
+    }
+
+    public void setDataFimInscricao(LocalDate dataFimInscricao) {
+        this.dataFimInscricao = dataFimInscricao;
     }
 
 }

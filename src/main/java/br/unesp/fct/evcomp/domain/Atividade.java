@@ -1,7 +1,7 @@
 package br.unesp.fct.evcomp.domain;
 
 import jakarta.persistence.*;
-import java.util.Date;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.time.LocalDateTime;
@@ -19,6 +19,12 @@ public class Atividade {
 
     @Column(nullable = false)
     private String titulo;
+
+    @Column(columnDefinition = "TEXT", nullable = false)
+    private String descricao;
+
+    @Column(name = "pre_requisitos", columnDefinition = "TEXT")
+    private String preRequisitos;
 
     @Column(name = "data_inicio", nullable = false)
     private LocalDate dataInicio;
@@ -72,11 +78,10 @@ public class Atividade {
         }
     }
 
-    public Atividade() {
-    }
-
-    public Atividade(String titulo, LocalDate dataInicio, LocalTime horarioInicio, LocalDate dataFim, LocalTime horarioFim, int maxParticipantes, int cargaHorariaTotal, int cargaHorariaMinistrante) {
+    public Atividade(String titulo, String descricao, String preRequisitos, LocalDate dataInicio, LocalTime horarioInicio, LocalDate dataFim, LocalTime horarioFim, int maxParticipantes, int cargaHorariaTotal, int cargaHorariaMinistrante) {
         this.titulo = titulo;
+        this.descricao = descricao;
+        this.preRequisitos = preRequisitos;
         this.dataInicio = dataInicio;
         this.horarioInicio = horarioInicio;
         this.dataFim = dataFim;
@@ -86,18 +91,20 @@ public class Atividade {
         this.cargaHorariaMinistrante = cargaHorariaMinistrante;
     }
 
-    public static Atividade criarAtividade(String titulo, LocalDate data_inicio, LocalTime horario_inicio, LocalDate data_termino, LocalTime horario_termino, int max_participantes, int carga_horaria_total, List<Participante> ministrantes, int carga_horaria_ministrantes) {
-        Atividade atv = new Atividade(titulo, data_inicio, horario_inicio, data_termino, horario_termino, max_participantes, carga_horaria_total, carga_horaria_ministrantes);
+    public static Atividade criarAtividade(String titulo, String descricao, String preRequisitos, LocalDate data_inicio, LocalTime horario_inicio, LocalDate data_termino, LocalTime horario_termino, int max_participantes, int carga_horaria_total, List<Participante> ministrantes, int carga_horaria_ministrantes) {
+        Atividade atv = new Atividade(titulo, descricao, preRequisitos, data_inicio, horario_inicio, data_termino, horario_termino, max_participantes, carga_horaria_total, carga_horaria_ministrantes);
         if (ministrantes != null) {
             atv.getMinistrantes().addAll(ministrantes);
         }
         return atv;
     }
 
-    public Object pegarDadosAtividade(Atividade atividade) {
+    public Object pegarDadosAtividade() {
         java.util.Map<String, Object> dados = new java.util.HashMap<>();
         dados.put("id", this.id);
         dados.put("titulo", this.titulo);
+        dados.put("descricao", this.descricao);
+        dados.put("preRequisitos", this.preRequisitos);
         dados.put("dataInicio", this.dataInicio);
         dados.put("horarioInicio", this.horarioInicio);
         dados.put("dataFim", this.dataFim);
@@ -126,6 +133,8 @@ public class Atividade {
             java.util.Map<String, Object> req = (java.util.Map<String, Object>) novosDadosAtividade;
             
             if (req.get("titulo") != null) this.titulo = String.valueOf(req.get("titulo"));
+            if (req.get("descricao") != null) this.descricao = String.valueOf(req.get("descricao"));
+            if (req.get("pre_requisitos") != null) this.preRequisitos = String.valueOf(req.get("pre_requisitos"));
             if (req.get("data_inicio") != null) this.dataInicio = java.time.LocalDate.parse(String.valueOf(req.get("data_inicio")));
             if (req.get("data_termino") != null) this.dataFim = java.time.LocalDate.parse(String.valueOf(req.get("data_termino")));
             if (req.get("horario_inicio") != null) this.horarioInicio = java.time.LocalTime.parse(String.valueOf(req.get("horario_inicio")));
@@ -170,6 +179,14 @@ public class Atividade {
     public void setTitulo(String titulo) {
         this.titulo = titulo;
     }
+
+    public String getDescricao() { return descricao; }
+
+    public void setDescricao(String descricao) { this.descricao = descricao; }
+
+    public String getPreRequisitos() { return preRequisitos; }
+
+    public void setPreRequisitos(String preRequisitos) { this.preRequisitos = preRequisitos; }
 
     public LocalDate getDataInicio() {
         return dataInicio;

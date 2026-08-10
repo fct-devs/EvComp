@@ -10,6 +10,8 @@ import java.util.stream.Collectors;
 public class AtividadeResponseDTO {
     private Integer id;
     private String titulo;
+    private String descricao;
+    private String preRequisitos;
     private LocalDate dataInicio;
     private LocalTime horarioInicio;
     private LocalDate dataFim;
@@ -29,6 +31,8 @@ public class AtividadeResponseDTO {
         AtividadeResponseDTO dto = new AtividadeResponseDTO();
         dto.setId(atividade.getId());
         dto.setTitulo(atividade.getTitulo());
+        dto.setDescricao(atividade.getDescricao());
+        dto.setPreRequisitos(atividade.getPreRequisitos());
         dto.setDataInicio(atividade.getDataInicio());
         dto.setHorarioInicio(atividade.getHorarioInicio());
         dto.setDataFim(atividade.getDataFim());
@@ -52,6 +56,12 @@ public class AtividadeResponseDTO {
 
     public String getTitulo() { return titulo; }
     public void setTitulo(String titulo) { this.titulo = titulo; }
+
+    private void setDescricao(String descricao) { this.descricao = descricao; }
+    public String getDescricao() { return descricao; }
+
+    private void setPreRequisitos(String preRequisitos) { this.preRequisitos = preRequisitos; }
+    public String getPreRequisitos() { return preRequisitos; }
 
     public LocalDate getDataInicio() { return dataInicio; }
     public void setDataInicio(LocalDate dataInicio) { this.dataInicio = dataInicio; }

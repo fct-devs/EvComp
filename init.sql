@@ -44,6 +44,8 @@ CREATE TABLE `atividade` (
   `titulo` varchar(155) NOT NULL,
   `data_inicio` date NOT NULL,
   `data_termino` date NOT NULL,
+  `descricao` text NOT NULL,
+  `pre_requisitos` text,
   `hora_inicio` time NOT NULL,
   `hora_termino` time NOT NULL,
   `max_participantes` smallint(3) unsigned zerofill NOT NULL,
@@ -157,11 +159,9 @@ INSERT INTO `evento` (`idEvento`, `titulo`, `data_inicio`, `data_termino`, `desc
 UNLOCK TABLES;
 
 LOCK TABLES `atividade` WRITE;
-INSERT INTO `atividade` (`idAtividade`, `titulo`, `data_inicio`, `data_termino`, `hora_inicio`, `hora_termino`, `max_participantes`, `carga_horaria_total`, `carga_horaria_ministrante`, `idEvento`) VALUES
-(1, 'Palestra de Abertura', '2027-08-10', '2027-08-10', '08:00:00', '12:00:00', 50, 4, 4, 1),
-(2, 'Minicurso de Python', '2025-05-10', '2025-05-10', '14:00:00', '18:00:00', 30, 4, 8, 2),
-(3, 'Maratona de Programação', CURDATE(), CURDATE(), '00:00:00', '23:59:00', 100, 10, 10, 3);
-UNLOCK TABLES;
+INSERT INTO `atividade` (`idAtividade`, `titulo`, `data_inicio`, `data_termino`, `descricao`, `pre_requisitos`, `hora_inicio`, `hora_termino`, `max_participantes`, `carga_horaria_total`, `carga_horaria_ministrante`, `idEvento`) VALUES(1, 'Palestra de Abertura', '2027-08-10', '2027-08-10', 'Descrição mockada para a palestra de abertura.', NULL, '08:00:00', '12:00:00', 50, 4, 4, 1),
+(2, 'Minicurso de Python', '2025-05-10', '2025-05-10', 'Aprenda do zero a linguagem Python.', 'Noções de lógica de programação.', '14:00:00', '18:00:00', 30, 4, 8, 2),
+(3, 'Maratona de Programação', CURDATE(), CURDATE(), 'Competição intensiva de resolução de problemas algorítmicos.', 'Saber programar em C, C++, Java ou Python.', '00:00:00', '23:59:00', 100, 10, 10, 3);UNLOCK TABLES;
 
 LOCK TABLES `ministrante_atividade` WRITE;
 INSERT INTO `ministrante_atividade` (`idUsuário`, `idAtividade`) VALUES

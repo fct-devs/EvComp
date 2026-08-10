@@ -78,6 +78,10 @@ public class Atividade {
         }
     }
 
+    public Atividade() {
+
+    }
+
     public Atividade(String titulo, String descricao, String preRequisitos, LocalDate dataInicio, LocalTime horarioInicio, LocalDate dataFim, LocalTime horarioFim, int maxParticipantes, int cargaHorariaTotal, int cargaHorariaMinistrante) {
         this.titulo = titulo;
         this.descricao = descricao;

@@ -160,15 +160,17 @@ public class EventoController {
 
             LocalDate dataInicio = LocalDate.parse(req.getDataInicio());
             LocalDate dataTermino = LocalDate.parse(req.getDataTermino());
+            LocalDate dataInicioInscricao = LocalDate.parse(req.getDataInicioInscricao());
+            LocalDate dataFimInscricao = LocalDate.parse(req.getDataFimInscricao());
 
             if (eventoRepository.verificarEventoCadastrado(titulo)) {
                 return ResponseEntity.badRequest().body(Map.of("error", "Já existe um evento cadastrado com este título."));
             }
-            
+
             TipoContabilizacao tipoC = TipoContabilizacao.valueOf(tipo);
-            
-            Evento evento = Evento.criarEvento(titulo, dataInicio, dataTermino, descricao, link, tipoC);
-           
+
+            Evento evento = Evento.criarEvento(titulo, dataInicio, dataTermino, descricao, link, tipoC, dataInicioInscricao, dataFimInscricao);
+
             boolean eventoCriado = eventoRepository.salvarNovoEvento(evento);
             
             if (eventoCriado) {
@@ -194,6 +196,8 @@ public class EventoController {
             String tipo = req.getTipoContabilizacao();
             LocalDate dataInicio = LocalDate.parse(req.getDataInicio());
             LocalDate dataTermino = LocalDate.parse(req.getDataTermino());
+            LocalDate dataInicioInscricao = LocalDate.parse(req.getDataInicioInscricao());
+            LocalDate dataFimInscricao = LocalDate.parse(req.getDataFimInscricao());
 
             Optional<Evento> eventoEncontrado = eventoRepository.buscarEventoPorId(id);
             Evento evento = eventoEncontrado.get();
@@ -210,7 +214,9 @@ public class EventoController {
             evento.setDescricao(descricao);
             evento.setLink(link);
             evento.setTipoContabilizacao(TipoContabilizacao.valueOf(tipo));
-            
+            evento.setDataInicioInscricao(dataInicioInscricao);
+            evento.setDataFimInscricao(dataFimInscricao);
+
             boolean editado = eventoRepository.salvarEvento(evento);
             
             if (editado) {

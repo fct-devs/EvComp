@@ -34,6 +34,8 @@ CREATE TABLE `evento` (
   `descricao` text NOT NULL,
   `link` varchar(255) DEFAULT NULL,
   `tipo_contabilizacao` varchar(20) NOT NULL,
+  `data_inicio_inscricao` date NOT NULL,
+  `data_fim_inscricao` date NOT NULL,
   PRIMARY KEY (`idEvento`),
   UNIQUE KEY `titulo_UNIQUE` (`titulo`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
@@ -152,10 +154,10 @@ INSERT INTO `usuário` (`idUsuário`, `nome_completo`, `email`, `senha_hash`, `t
 UNLOCK TABLES;
 
 LOCK TABLES `evento` WRITE;
-INSERT INTO `evento` (`idEvento`, `titulo`, `data_inicio`, `data_termino`, `descricao`, `link`, `tipo_contabilizacao`) VALUES
-(1, 'Semana da Computação 2027', '2027-08-10', '2027-08-15', 'Evento Futuro para testes de Inscrição e Gestão.', 'http://secomp2027.com.br', 'POR_ATIVIDADE'),
-(2, 'Workshop de IA 2025', '2025-05-10', '2025-05-12', 'Evento Passado para testes de Certificados e Relatórios.', '', 'POR_CARGA_TOTAL'),
-(3, 'Hackathon de Testes', CURDATE(), CURDATE(), 'Evento Ocorrendo Hoje para testar Registro de Presença com Coletor.', '', 'POR_ATIVIDADE');
+INSERT INTO `evento` (`idEvento`, `titulo`, `data_inicio`, `data_termino`, `descricao`, `link`, `tipo_contabilizacao`, `data_inicio_inscricao`, `data_fim_inscricao`) VALUES
+(1, 'Semana da Computação 2027', '2027-08-10', '2027-08-15', 'Evento Futuro para testes de Inscrição e Gestão.', 'http://secomp2027.com.br', 'POR_ATIVIDADE', DATE_SUB(CURDATE(), INTERVAL 30 DAY), DATE_ADD(CURDATE(), INTERVAL 30 DAY)),
+(2, 'Workshop de IA 2025', '2025-05-10', '2025-05-12', 'Evento Passado para testes de Certificados e Relatórios.', '', 'POR_CARGA_TOTAL', '2025-04-01', '2025-05-08'),
+(3, 'Hackathon de Testes', CURDATE(), CURDATE(), 'Evento Ocorrendo Hoje para testar Registro de Presença com Coletor.', '', 'POR_ATIVIDADE', DATE_SUB(CURDATE(), INTERVAL 7 DAY), CURDATE());
 UNLOCK TABLES;
 
 LOCK TABLES `atividade` WRITE;

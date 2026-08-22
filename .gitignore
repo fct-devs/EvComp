@@ -39,6 +39,9 @@ out/
 ### VS Code ###
 .vscode/
 
+### Comprovantes de pagamento gravados localmente (pagamento.armazenamento=DISCO) ###
+uploads/
+
 ### Passwords and Local Configs ###
 application-dev.properties
 src/main/resources/templates/template.html

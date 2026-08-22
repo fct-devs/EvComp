@@ -95,8 +95,7 @@ class InscricaoControllerIT {
     }
 
     private Atividade criarAtividade(String titulo, Evento evento) {
-        // TODO corrigir construtor para novo modelo de Atividade
-        Atividade atividade = new Atividade(titulo, evento.getDataInicio(), LocalTime.of(9, 0), evento.getDataFim(), LocalTime.of(11, 0), 50, 2, 2);
+        Atividade atividade = new Atividade(titulo, "descricao", "pre-requisitos", evento.getDataInicio(), LocalTime.of(9, 0), evento.getDataFim(), LocalTime.of(11, 0), 50, 2, 2);
         atividade.setEvento(evento);
         return atividade;
     }

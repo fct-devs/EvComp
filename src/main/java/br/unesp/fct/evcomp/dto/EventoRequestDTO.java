@@ -35,6 +35,12 @@ public class EventoRequestDTO {
     @Digits(integer = 8, fraction = 2, message = "O valor da inscrição deve ter no máximo 8 dígitos inteiros e 2 decimais.")
     private java.math.BigDecimal valorInscricao;
 
+    @NotNull(message = "A data de início das inscrições é obrigatória.")
+    private String dataInicioInscricao;
+
+    @NotNull(message = "A data de término das inscrições é obrigatória.")
+    private String dataFimInscricao;
+
     public String getTitulo() { return titulo; }
     public void setTitulo(String titulo) { this.titulo = titulo; }
 
@@ -58,4 +64,10 @@ public class EventoRequestDTO {
 
     public java.math.BigDecimal getValorInscricao() { return valorInscricao; }
     public void setValorInscricao(java.math.BigDecimal valorInscricao) { this.valorInscricao = valorInscricao; }
+
+    public String getDataInicioInscricao() { return dataInicioInscricao; }
+    public void setDataInicioInscricao(String dataInicioInscricao) { this.dataInicioInscricao = dataInicioInscricao; }
+
+    public String getDataFimInscricao() { return dataFimInscricao; }
+    public void setDataFimInscricao(String dataFimInscricao) { this.dataFimInscricao = dataFimInscricao; }
 }

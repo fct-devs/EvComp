@@ -39,6 +39,12 @@ public class Evento {
     @Column(name = "valor_inscricao", precision = 10, scale = 2)
     private java.math.BigDecimal valorInscricao;
 
+    @Column(name = "data_inicio_inscricao", nullable = false)
+    private LocalDate dataInicioInscricao;
+
+    @Column(name = "data_fim_inscricao", nullable = false)
+    private LocalDate dataFimInscricao;
+
     @Transient
     private Atividade[] atividade;
 
@@ -65,6 +71,8 @@ public class Evento {
         map.put("tipoContabilizacao", this.tipoContabilizacao);
         map.put("chavePix", this.chavePix);
         map.put("valorInscricao", this.valorInscricao);
+        map.put("dataInicioInscricao", this.dataInicioInscricao);
+        map.put("dataFimInscricao", this.dataFimInscricao);
 
         return map;
     }
@@ -74,11 +82,11 @@ public class Evento {
             && this.valorInscricao.compareTo(java.math.BigDecimal.ZERO) > 0;
     }
 
-    public static Evento criarEvento(String titulo, LocalDate dataInicio, LocalDate dataTermino, String descricao, String link, TipoContabilizacao tipo) {
-        return criarEvento(titulo, dataInicio, dataTermino, descricao, link, tipo, null, null);
+    public static Evento criarEvento(String titulo, LocalDate dataInicio, LocalDate dataTermino, String descricao, String link, TipoContabilizacao tipo, LocalDate dataInicioInscricao, LocalDate dataFimInscricao) {
+        return criarEvento(titulo, dataInicio, dataTermino, descricao, link, tipo, dataInicioInscricao, dataFimInscricao, null, null);
     }
 
-    public static Evento criarEvento(String titulo, LocalDate dataInicio, LocalDate dataTermino, String descricao, String link, TipoContabilizacao tipo, String chavePix, java.math.BigDecimal valorInscricao) {
+    public static Evento criarEvento(String titulo, LocalDate dataInicio, LocalDate dataTermino, String descricao, String link, TipoContabilizacao tipo, LocalDate dataInicioInscricao, LocalDate dataFimInscricao, String chavePix, java.math.BigDecimal valorInscricao) {
         Evento evento = new Evento();
 
         evento.setTitulo(titulo);
@@ -89,6 +97,8 @@ public class Evento {
         evento.setTipoContabilizacao(tipo);
         evento.setChavePix(chavePix);
         evento.setValorInscricao(valorInscricao);
+        evento.setDataInicioInscricao(dataInicioInscricao);
+        evento.setDataFimInscricao(dataFimInscricao);
 
         return evento;
     }
@@ -166,6 +176,22 @@ public class Evento {
 
     public void setValorInscricao(java.math.BigDecimal valorInscricao) {
         this.valorInscricao = valorInscricao;
+    }
+
+    public LocalDate getDataInicioInscricao() {
+        return dataInicioInscricao;
+    }
+
+    public void setDataInicioInscricao(LocalDate dataInicioInscricao) {
+        this.dataInicioInscricao = dataInicioInscricao;
+    }
+
+    public LocalDate getDataFimInscricao() {
+        return dataFimInscricao;
+    }
+
+    public void setDataFimInscricao(LocalDate dataFimInscricao) {
+        this.dataFimInscricao = dataFimInscricao;
     }
 
 }

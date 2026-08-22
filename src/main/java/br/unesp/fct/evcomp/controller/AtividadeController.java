@@ -83,7 +83,7 @@ public class AtividadeController {
         if (atividadeOpt.isPresent()) {
             Atividade atividade = atividadeOpt.get();
 
-            return ResponseEntity.ok(atividade.pegarDadosAtividade(atividade));
+            return ResponseEntity.ok(atividade.pegarDadosAtividade());
         }
 
         return ResponseEntity.status(404).body(Map.of("error", "Atividade não encontrada"));
@@ -95,7 +95,7 @@ public class AtividadeController {
         
         if (atividadeOpt.isPresent()) {
             Atividade atividadeEncontrada = atividadeOpt.get();
-            Object dadosAtividade = atividadeEncontrada.pegarDadosAtividade(atividadeEncontrada);
+            Object dadosAtividade = atividadeEncontrada.pegarDadosAtividade();
             boolean periodoValido = atividadeService.checarPeriodoPresenca(atividadeEncontrada);
             
             if (periodoValido) {
@@ -122,6 +122,9 @@ public class AtividadeController {
                 return ResponseEntity.badRequest().body(Map.of("error", "Já existe uma atividade com este título neste evento."));
             }
 
+            String descricao = String.valueOf(req.get("descricao"));
+            String preRequisitos = String.valueOf(req.getOrDefault("pre_requisitos", ""));
+
             LocalDate data_inicio = LocalDate.parse(String.valueOf(req.get("data_inicio")));
             LocalDate data_termino = LocalDate.parse(String.valueOf(req.get("data_termino")));
             
@@ -140,7 +143,7 @@ public class AtividadeController {
                 }
             }
 
-            Atividade novaAtividade = Atividade.criarAtividade(titulo, data_inicio, horario_inicio, data_termino, horario_termino, max_participantes, carga_horaria_total, ministrantes, carga_horaria_ministrantes);
+            Atividade novaAtividade = Atividade.criarAtividade(titulo, descricao, preRequisitos, data_inicio, horario_inicio, data_termino, horario_termino, max_participantes, carga_horaria_total, ministrantes, carga_horaria_ministrantes);
             
             novaAtividade.setEvento(evento);
 

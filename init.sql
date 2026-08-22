@@ -36,6 +36,8 @@ CREATE TABLE `evento` (
   `tipo_contabilizacao` varchar(20) NOT NULL,
   `chave_pix` varchar(255) DEFAULT NULL,
   `valor_inscricao` decimal(10,2) DEFAULT NULL,
+  `data_inicio_inscricao` date NOT NULL,
+  `data_fim_inscricao` date NOT NULL,
   PRIMARY KEY (`idEvento`),
   UNIQUE KEY `titulo_UNIQUE` (`titulo`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
@@ -46,6 +48,8 @@ CREATE TABLE `atividade` (
   `titulo` varchar(155) NOT NULL,
   `data_inicio` date NOT NULL,
   `data_termino` date NOT NULL,
+  `descricao` text NOT NULL,
+  `pre_requisitos` text,
   `hora_inicio` time NOT NULL,
   `hora_termino` time NOT NULL,
   `max_participantes` smallint(3) unsigned zerofill NOT NULL,
@@ -181,18 +185,16 @@ INSERT INTO `usuário` (`idUsuário`, `nome_completo`, `email`, `senha_hash`, `t
 UNLOCK TABLES;
 
 LOCK TABLES `evento` WRITE;
-INSERT INTO `evento` (`idEvento`, `titulo`, `data_inicio`, `data_termino`, `descricao`, `link`, `tipo_contabilizacao`, `chave_pix`, `valor_inscricao`) VALUES
-(1, 'Semana da Computação 2027', '2027-08-10', '2027-08-15', 'Evento Futuro para testes de Inscrição e Gestão.', 'http://secomp2027.com.br', 'POR_ATIVIDADE', 'secomp@fct.unesp.br', 40.00),
-(2, 'Workshop de IA 2025', '2025-05-10', '2025-05-12', 'Evento Passado para testes de Certificados e Relatórios.', '', 'POR_CARGA_TOTAL', '12345678000199', 25.50),
-(3, 'Hackathon de Testes', CURDATE(), CURDATE(), 'Evento Ocorrendo Hoje para testar Registro de Presença com Coletor.', '', 'POR_ATIVIDADE', NULL, NULL);
+INSERT INTO `evento` (`idEvento`, `titulo`, `data_inicio`, `data_termino`, `descricao`, `link`, `tipo_contabilizacao`, `chave_pix`, `valor_inscricao`, `data_inicio_inscricao`, `data_fim_inscricao`) VALUES
+(1, 'Semana da Computação 2027', '2027-08-10', '2027-08-15', 'Evento Futuro para testes de Inscrição e Gestão.', 'http://secomp2027.com.br', 'POR_ATIVIDADE', 'secomp@fct.unesp.br', 40.00, DATE_SUB(CURDATE(), INTERVAL 30 DAY), DATE_ADD(CURDATE(), INTERVAL 30 DAY)),
+(2, 'Workshop de IA 2025', '2025-05-10', '2025-05-12', 'Evento Passado para testes de Certificados e Relatórios.', '', 'POR_CARGA_TOTAL', '12345678000199', 25.50, '2025-04-01', '2025-05-08'),
+(3, 'Hackathon de Testes', CURDATE(), CURDATE(), 'Evento Ocorrendo Hoje para testar Registro de Presença com Coletor.', '', 'POR_ATIVIDADE', NULL, NULL, DATE_SUB(CURDATE(), INTERVAL 7 DAY), CURDATE());
 UNLOCK TABLES;
 
 LOCK TABLES `atividade` WRITE;
-INSERT INTO `atividade` (`idAtividade`, `titulo`, `data_inicio`, `data_termino`, `hora_inicio`, `hora_termino`, `max_participantes`, `carga_horaria_total`, `carga_horaria_ministrante`, `idEvento`) VALUES
-(1, 'Palestra de Abertura', '2027-08-10', '2027-08-10', '08:00:00', '12:00:00', 50, 4, 4, 1),
-(2, 'Minicurso de Python', '2025-05-10', '2025-05-10', '14:00:00', '18:00:00', 30, 4, 8, 2),
-(3, 'Maratona de Programação', CURDATE(), CURDATE(), '00:00:00', '23:59:00', 100, 10, 10, 3);
-UNLOCK TABLES;
+INSERT INTO `atividade` (`idAtividade`, `titulo`, `data_inicio`, `data_termino`, `descricao`, `pre_requisitos`, `hora_inicio`, `hora_termino`, `max_participantes`, `carga_horaria_total`, `carga_horaria_ministrante`, `idEvento`) VALUES(1, 'Palestra de Abertura', '2027-08-10', '2027-08-10', 'Descrição mockada para a palestra de abertura.', NULL, '08:00:00', '12:00:00', 50, 4, 4, 1),
+(2, 'Minicurso de Python', '2025-05-10', '2025-05-10', 'Aprenda do zero a linguagem Python.', 'Noções de lógica de programação.', '14:00:00', '18:00:00', 30, 4, 8, 2),
+(3, 'Maratona de Programação', CURDATE(), CURDATE(), 'Competição intensiva de resolução de problemas algorítmicos.', 'Saber programar em C, C++, Java ou Python.', '00:00:00', '23:59:00', 100, 10, 10, 3);UNLOCK TABLES;
 
 LOCK TABLES `ministrante_atividade` WRITE;
 INSERT INTO `ministrante_atividade` (`idUsuário`, `idAtividade`) VALUES

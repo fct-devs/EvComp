@@ -12,6 +12,9 @@ import java.util.Optional;
 public interface InscricaoRepository extends JpaRepository<Inscrição, Integer> {
     @org.springframework.data.jpa.repository.Query("SELECT i FROM Inscrição i WHERE i.participante.id = :participanteId AND i.evento.id = :eventoId")
     Optional<Inscrição> buscarPorParticipanteEEvento(@org.springframework.data.repository.query.Param("participanteId") Integer participanteId, @org.springframework.data.repository.query.Param("eventoId") Integer eventoId);
+
+    @Query("SELECT i FROM Inscrição i JOIN FETCH i.evento JOIN FETCH i.participante WHERE i.id = :inscricaoId")
+    Optional<Inscrição> buscarPorIdComDetalhes(@Param("inscricaoId") Integer inscricaoId);
     
     @org.springframework.data.jpa.repository.Query("SELECT i.participante FROM Inscrição i WHERE i.evento.id = :eventoId AND i.status = true")
     List<Participante> buscarParticipantesPorEvento(@Param("eventoId") Integer eventoId);

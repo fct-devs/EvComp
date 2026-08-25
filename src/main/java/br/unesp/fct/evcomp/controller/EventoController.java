@@ -168,9 +168,9 @@ public class EventoController {
             }
 
             TipoContabilizacao tipoC = TipoContabilizacao.valueOf(tipo);
-
-            Evento evento = Evento.criarEvento(titulo, dataInicio, dataTermino, descricao, link, tipoC, dataInicioInscricao, dataFimInscricao);
-
+            
+            Evento evento = Evento.criarEvento(titulo, dataInicio, dataTermino, descricao, link, tipoC, dataInicioInscricao, dataFimInscricao, req.getChavePix(), req.getValorInscricao());
+           
             boolean eventoCriado = eventoRepository.salvarNovoEvento(evento);
             
             if (eventoCriado) {
@@ -214,6 +214,8 @@ public class EventoController {
             evento.setDescricao(descricao);
             evento.setLink(link);
             evento.setTipoContabilizacao(TipoContabilizacao.valueOf(tipo));
+            evento.setChavePix(req.getChavePix());
+            evento.setValorInscricao(req.getValorInscricao());
             evento.setDataInicioInscricao(dataInicioInscricao);
             evento.setDataFimInscricao(dataFimInscricao);
 

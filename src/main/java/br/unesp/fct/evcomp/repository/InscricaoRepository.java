@@ -25,6 +25,9 @@ public interface InscricaoRepository extends JpaRepository<Inscrição, Integer>
     @org.springframework.data.jpa.repository.Query("SELECT i FROM Inscrição i LEFT JOIN FETCH i.atividade JOIN FETCH i.evento WHERE i.participante.id = :participanteId AND i.status = true")
     List<Inscrição> buscarInscricoesAtivasPorParticipante(@Param("participanteId") Integer participanteId);
 
+    @org.springframework.data.jpa.repository.Query("SELECT i FROM Inscrição i LEFT JOIN FETCH i.atividade JOIN FETCH i.evento WHERE i.participante.id = :participanteId")
+    List<Inscrição> buscarInscricoesPorParticipante(@Param("participanteId") Integer participanteId);
+
     @org.springframework.data.jpa.repository.Query("SELECT i FROM Inscrição i JOIN i.atividade a WHERE a.id = :atividadeId AND i.status = true")
     List<Inscrição> buscarInscricoesPorAtividade(@Param("atividadeId") Integer atividadeId);
 

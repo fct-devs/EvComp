@@ -73,7 +73,7 @@ public class PagamentoService {
     }
 
     public List<Pagamento> listarPorParticipante(Integer participanteId) {
-        List<Inscrição> inscricoes = inscricaoRepository.buscarInscricoesAtivasPorParticipante(participanteId);
+        List<Inscrição> inscricoes = inscricaoRepository.buscarInscricoesPorParticipante(participanteId);
         List<Pagamento> pagamentos = new ArrayList<>();
 
         for (Inscrição inscricao : inscricoes) {
@@ -149,6 +149,9 @@ public class PagamentoService {
         pagamento.setMotivoRecusa(novoStatus == StatusPagamento.RECUSADO ? motivoRecusa : null);
         pagamento.setDataAvaliacao(LocalDateTime.now());
         pagamento.setAvaliador(buscarAdministrador(adminId));
+
+        pagamento.getInscricao().setStatus(novoStatus == StatusPagamento.APROVADO);
+        inscricaoRepository.salvarInscricao(pagamento.getInscricao());
 
         return pagamentoRepository.salvarPagamento(pagamento);
     }

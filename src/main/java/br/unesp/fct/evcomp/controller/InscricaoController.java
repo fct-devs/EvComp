@@ -96,6 +96,10 @@ public class InscricaoController {
         // Busca a Inscrição Atual
         Optional<br.unesp.fct.evcomp.domain.Inscrição> inscricaoExistente = inscricaoRepository.buscarPorParticipanteEEvento(participanteId, eventoId);
 
+        // Evento pago -> inscrição nasce bloqueada (status=false) até o pagamento ser aprovado;
+        // evento gratuito -> nasce ativa (status=true), como antes.
+        boolean statusInicial = !eventoObj.ehPago();
+
         br.unesp.fct.evcomp.domain.Inscrição inscricao;
         if (inscricaoExistente.isPresent()) {
             inscricao = inscricaoExistente.get();
@@ -103,13 +107,13 @@ public class InscricaoController {
                 return ResponseEntity.badRequest().body(Map.of("error", "Participante já inscrito neste evento."));
             }
             // Reativa a inscrição cancelada
-            inscricao.setStatus(true);
+            inscricao.setStatus(statusInicial);
             inscricao.setAtividade(atividadesObjetos);
             inscricao.setDataInscricao(LocalDateTime.now());
         } else {
             // Nova Inscrição
             inscricao = new br.unesp.fct.evcomp.domain.Inscrição(
-                LocalDateTime.now(), true, participante.get(), evento.get(), atividadesObjetos
+                LocalDateTime.now(), statusInicial, participante.get(), evento.get(), atividadesObjetos
             );
         }
 
@@ -193,7 +197,7 @@ public class InscricaoController {
                 return ResponseEntity.status(403).body(Map.of("error", "Você só pode visualizar os detalhes das suas próprias inscrições."));
             }
 
-            List<br.unesp.fct.evcomp.domain.Inscrição> inscricoes = inscricaoRepository.buscarInscricoesAtivasPorParticipante(participanteId);
+            List<br.unesp.fct.evcomp.domain.Inscrição> inscricoes = inscricaoRepository.buscarInscricoesPorParticipante(participanteId);
             List<br.unesp.fct.evcomp.dto.InscricaoResponseDTO> dtos = inscricoes.stream()
                 .map(br.unesp.fct.evcomp.dto.InscricaoResponseDTO::fromEntity)
                 .toList();

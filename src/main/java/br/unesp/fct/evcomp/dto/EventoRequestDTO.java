@@ -1,7 +1,5 @@
 package br.unesp.fct.evcomp.dto;
 
-import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -31,10 +29,6 @@ public class EventoRequestDTO {
     @Size(max = 255, message = "A chave PIX deve ter no máximo 255 caracteres.")
     private String chavePix;
 
-    @DecimalMin(value = "0.0", message = "O valor da inscrição não pode ser negativo.")
-    @Digits(integer = 8, fraction = 2, message = "O valor da inscrição deve ter no máximo 8 dígitos inteiros e 2 decimais.")
-    private java.math.BigDecimal valorInscricao;
-
     @NotNull(message = "A data de início das inscrições é obrigatória.")
     private String dataInicioInscricao;
 
@@ -61,9 +55,6 @@ public class EventoRequestDTO {
 
     public String getChavePix() { return chavePix; }
     public void setChavePix(String chavePix) { this.chavePix = chavePix; }
-
-    public java.math.BigDecimal getValorInscricao() { return valorInscricao; }
-    public void setValorInscricao(java.math.BigDecimal valorInscricao) { this.valorInscricao = valorInscricao; }
 
     public String getDataInicioInscricao() { return dataInicioInscricao; }
     public void setDataInicioInscricao(String dataInicioInscricao) { this.dataInicioInscricao = dataInicioInscricao; }

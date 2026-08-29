@@ -32,6 +32,7 @@ public class PagamentoPendenteResponseDTO extends PagamentoResponseDTO {
         dto.setMotivoRecusa(base.getMotivoRecusa());
         dto.setChavePix(base.getChavePix());
         dto.setValorInscricao(base.getValorInscricao());
+        dto.setModalidadeNome(base.getModalidadeNome());
         dto.setUrlComprovante(base.getUrlComprovante());
 
         Inscrição inscricao = pagamento.getInscricao();

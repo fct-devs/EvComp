@@ -42,6 +42,14 @@ public class Inscrição {
     )
     private List<Atividade> atividade = new ArrayList<>();
 
+    @com.fasterxml.jackson.annotation.JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "idModalidade", nullable = false)
+    private ModalidadeInscricao modalidade;
+
+    @Column(name = "valor_aplicado", nullable = false, precision = 10, scale = 2)
+    private java.math.BigDecimal valorAplicado;
+
     public Inscrição() {
     }
 
@@ -99,5 +107,21 @@ public class Inscrição {
 
     public void setAtividade(List<Atividade> atividade) {
         this.atividade = atividade;
+    }
+
+    public ModalidadeInscricao getModalidade() {
+        return modalidade;
+    }
+
+    public void setModalidade(ModalidadeInscricao modalidade) {
+        this.modalidade = modalidade;
+    }
+
+    public java.math.BigDecimal getValorAplicado() {
+        return valorAplicado;
+    }
+
+    public void setValorAplicado(java.math.BigDecimal valorAplicado) {
+        this.valorAplicado = valorAplicado;
     }
 }

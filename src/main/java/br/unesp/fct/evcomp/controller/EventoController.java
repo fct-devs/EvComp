@@ -26,7 +26,8 @@ public class EventoController {
     private final EventoRepository eventoRepository;
     private final ParticipanteRepository participanteRepository;
     private final br.unesp.fct.evcomp.repository.InscricaoRepository inscricaoRepository;
-    
+    private final br.unesp.fct.evcomp.repository.ModalidadeInscricaoRepository modalidadeRepository;
+
     @Autowired
     private br.unesp.fct.evcomp.repository.AtividadeRepository atividadeRepository;
 
@@ -34,10 +35,11 @@ public class EventoController {
     private EntityManager entityManager;
 
     @Autowired
-    public EventoController(EventoRepository eventoRepository, ParticipanteRepository participanteRepository, br.unesp.fct.evcomp.repository.InscricaoRepository inscricaoRepository) {
+    public EventoController(EventoRepository eventoRepository, ParticipanteRepository participanteRepository, br.unesp.fct.evcomp.repository.InscricaoRepository inscricaoRepository, br.unesp.fct.evcomp.repository.ModalidadeInscricaoRepository modalidadeRepository) {
         this.eventoRepository = eventoRepository;
         this.participanteRepository = participanteRepository;
         this.inscricaoRepository = inscricaoRepository;
+        this.modalidadeRepository = modalidadeRepository;
     }
 
     @GetMapping
@@ -140,10 +142,15 @@ public class EventoController {
         List<br.unesp.fct.evcomp.dto.AtividadeResponseDTO> atividadesDto = atividades.stream()
             .map(br.unesp.fct.evcomp.dto.AtividadeResponseDTO::fromEntity)
             .toList();
-        
+
+        List<br.unesp.fct.evcomp.dto.ModalidadeInscricaoResponseDTO> modalidadesDto = modalidadeRepository.buscarAtivasPorEvento(eventoId).stream()
+            .map(br.unesp.fct.evcomp.dto.ModalidadeInscricaoResponseDTO::fromEntity)
+            .toList();
+
         return ResponseEntity.ok(Map.of(
             "dadosEvento", dadosEvento,
-            "atividades", atividadesDto
+            "atividades", atividadesDto,
+            "modalidades", modalidadesDto
         ));
     }
 
@@ -169,7 +176,7 @@ public class EventoController {
 
             TipoContabilizacao tipoC = TipoContabilizacao.valueOf(tipo);
             
-            Evento evento = Evento.criarEvento(titulo, dataInicio, dataTermino, descricao, link, tipoC, dataInicioInscricao, dataFimInscricao, req.getChavePix(), req.getValorInscricao());
+            Evento evento = Evento.criarEvento(titulo, dataInicio, dataTermino, descricao, link, tipoC, dataInicioInscricao, dataFimInscricao, req.getChavePix());
            
             boolean eventoCriado = eventoRepository.salvarNovoEvento(evento);
             
@@ -215,7 +222,6 @@ public class EventoController {
             evento.setLink(link);
             evento.setTipoContabilizacao(TipoContabilizacao.valueOf(tipo));
             evento.setChavePix(req.getChavePix());
-            evento.setValorInscricao(req.getValorInscricao());
             evento.setDataInicioInscricao(dataInicioInscricao);
             evento.setDataFimInscricao(dataFimInscricao);
 

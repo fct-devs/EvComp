@@ -24,6 +24,7 @@ public class PagamentoResponseDTO {
     private String motivoRecusa;
     private String chavePix;
     private BigDecimal valorInscricao;
+    private String modalidadeNome;
     private String urlComprovante;
 
     public PagamentoResponseDTO() {}
@@ -55,7 +56,11 @@ public class PagamentoResponseDTO {
                 dto.setEventoId(evento.getId());
                 dto.setTituloEvento(evento.getTitulo());
                 dto.setChavePix(evento.getChavePix());
-                dto.setValorInscricao(evento.getValorInscricao());
+            }
+
+            dto.setValorInscricao(inscricao.getValorAplicado());
+            if (inscricao.getModalidade() != null) {
+                dto.setModalidadeNome(inscricao.getModalidade().getNome());
             }
         }
 
@@ -103,6 +108,9 @@ public class PagamentoResponseDTO {
 
     public BigDecimal getValorInscricao() { return valorInscricao; }
     public void setValorInscricao(BigDecimal valorInscricao) { this.valorInscricao = valorInscricao; }
+
+    public String getModalidadeNome() { return modalidadeNome; }
+    public void setModalidadeNome(String modalidadeNome) { this.modalidadeNome = modalidadeNome; }
 
     public String getUrlComprovante() { return urlComprovante; }
     public void setUrlComprovante(String urlComprovante) { this.urlComprovante = urlComprovante; }

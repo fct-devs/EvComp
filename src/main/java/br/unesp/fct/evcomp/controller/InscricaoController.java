@@ -176,6 +176,50 @@ public class InscricaoController {
             }
 
             Integer eventoId = inscricao.getEvento().getId();
+            Evento evento = inscricao.getEvento();
+            LocalDate hoje = LocalDate.now();
+
+            if (evento.getDataInicioInscricao() != null && evento.getDataFimInscricao() != null) {
+                if (hoje.isBefore(evento.getDataInicioInscricao()) || hoje.isAfter(evento.getDataFimInscricao())) {
+                    return ResponseEntity.badRequest().body(Map.of("error", "O período de inscrições para este evento está encerrado."));
+                }
+            }
+
+            if (req.getModalidadeId() != null) {
+                Integer modalidadeAtualId = inscricao.getModalidade() != null ? inscricao.getModalidade().getId() : null;
+                if (!req.getModalidadeId().equals(modalidadeAtualId)) {
+                    try {
+                        br.unesp.fct.evcomp.domain.Pagamento pagamento = pagamentoService.buscarPorInscricao(inscricaoId);
+                        if (pagamento != null) {
+                            if (pagamento.getStatus() == br.unesp.fct.evcomp.domain.StatusPagamento.APROVADO) {
+                                return ResponseEntity.badRequest().body(Map.of("error", "Não é permitido alterar a modalidade de uma inscrição com pagamento já aprovado."));
+                            }
+                            if (pagamento.getStatus() == br.unesp.fct.evcomp.domain.StatusPagamento.PENDENTE && pagamento.temComprovante()) {
+                                return ResponseEntity.badRequest().body(Map.of("error", "Não é permitido alterar a modalidade enquanto houver um comprovante sob análise. Aguarde a avaliação da organização."));
+                            }
+                        }
+                    } catch (Exception ignored) {}
+
+                    Optional<br.unesp.fct.evcomp.domain.ModalidadeInscricao> novaModalidadeOpt = modalidadeRepository.buscarPorIdEEvento(req.getModalidadeId(), eventoId);
+                    if (!novaModalidadeOpt.isPresent()) {
+                        return ResponseEntity.badRequest().body(Map.of("error", "Modalidade de inscrição não encontrada para este evento."));
+                    }
+
+                    br.unesp.fct.evcomp.domain.ModalidadeInscricao novaModalidade = novaModalidadeOpt.get();
+                    if (!novaModalidade.isAtivo()) {
+                        return ResponseEntity.badRequest().body(Map.of("error", "Esta modalidade de inscrição não está ativa."));
+                    }
+
+                    inscricao.setModalidade(novaModalidade);
+                    inscricao.setValorAplicado(novaModalidade.getValor());
+
+                    boolean statusInicial = novaModalidade.getValor() == null || novaModalidade.getValor().compareTo(java.math.BigDecimal.ZERO) <= 0;
+                    inscricao.setStatus(statusInicial);
+
+                    pagamentoService.obterOuCriar(inscricao);
+                }
+            }
+
             List<Atividade> todasAtividades = atividadeRepository.buscarAtividadesPorEvento(eventoId);
             List<Atividade> atividadesObjetos = new ArrayList<>(todasAtividades.stream()
                 .filter(a -> req.getAtividadeIds().contains(a.getId()))

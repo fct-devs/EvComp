@@ -14,6 +14,8 @@ public class InscricaoRequestDTO {
     @NotNull(message = "As atividades são obrigatórias.")
     private List<Integer> atividadeIds;
 
+    private Integer modalidadeId;
+
     public Integer getParticipanteId() { return participanteId; }
     public void setParticipanteId(Integer participanteId) { this.participanteId = participanteId; }
 
@@ -22,4 +24,7 @@ public class InscricaoRequestDTO {
 
     public List<Integer> getAtividadeIds() { return atividadeIds; }
     public void setAtividadeIds(List<Integer> atividadeIds) { this.atividadeIds = atividadeIds; }
+
+    public Integer getModalidadeId() { return modalidadeId; }
+    public void setModalidadeId(Integer modalidadeId) { this.modalidadeId = modalidadeId; }
 }

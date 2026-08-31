@@ -53,7 +53,8 @@ public class PagamentoService {
             return existente.get();
         }
 
-        StatusPagamento inicial = inscricao.getEvento() != null && inscricao.getEvento().ehPago()
+        StatusPagamento inicial = inscricao.getValorAplicado() != null
+                && inscricao.getValorAplicado().compareTo(java.math.BigDecimal.ZERO) > 0
             ? StatusPagamento.PENDENTE
             : StatusPagamento.ISENTO;
 

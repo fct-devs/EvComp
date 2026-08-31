@@ -49,4 +49,7 @@ public interface InscricaoRepository extends JpaRepository<Inscrição, Integer>
         this.save(inscricao);
     }
 
+    @org.springframework.data.jpa.repository.Query("SELECT COUNT(i) FROM Inscrição i WHERE i.modalidade.id = :modalidadeId")
+    int contarInscricoesPorModalidade(@org.springframework.data.repository.query.Param("modalidadeId") Integer modalidadeId);
+
 }

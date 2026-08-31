@@ -5,11 +5,13 @@ import br.unesp.fct.evcomp.domain.Administrador;
 import br.unesp.fct.evcomp.domain.Atividade;
 import br.unesp.fct.evcomp.domain.Evento;
 import br.unesp.fct.evcomp.domain.Inscrição;
+import br.unesp.fct.evcomp.domain.ModalidadeInscricao;
 import br.unesp.fct.evcomp.domain.Participante;
 import br.unesp.fct.evcomp.domain.TipoContabilizacao;
 import br.unesp.fct.evcomp.repository.AtividadeRepository;
 import br.unesp.fct.evcomp.repository.EventoRepository;
 import br.unesp.fct.evcomp.repository.InscricaoRepository;
+import br.unesp.fct.evcomp.repository.ModalidadeInscricaoRepository;
 import br.unesp.fct.evcomp.repository.UsuarioRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -57,11 +59,15 @@ class InscricaoControllerIT {
     @Autowired
     private InscricaoRepository inscricaoRepository;
 
+    @Autowired
+    private ModalidadeInscricaoRepository modalidadeRepository;
+
     private Evento eventoAberto;
     private Evento eventoFechado;
     private Atividade atividade1;
     private Atividade atividade2;
     private Atividade atividadeDoEventoFechado;
+    private ModalidadeInscricao modalidadeGratuita;
     private Participante dono;
     private String tokenDono;
     private String tokenOutro;
@@ -80,6 +86,8 @@ class InscricaoControllerIT {
             "descricao", "", TipoContabilizacao.POR_ATIVIDADE,
             LocalDate.now().minusMonths(3), LocalDate.now().minusMonths(2).minusDays(1)
         ));
+
+        modalidadeGratuita = modalidadeRepository.save(new ModalidadeInscricao(eventoAberto, "Padrão", null, java.math.BigDecimal.ZERO, true));
 
         atividade1 = atividadeRepository.save(criarAtividade("Atividade 1", eventoAberto));
         atividade2 = atividadeRepository.save(criarAtividade("Atividade 2", eventoAberto));
@@ -101,7 +109,10 @@ class InscricaoControllerIT {
     }
 
     private Inscrição criarInscricao(Participante participante, Evento evento, Atividade... atividades) {
-        return inscricaoRepository.save(new Inscrição(LocalDateTime.now(), true, participante, evento, List.of(atividades)));
+        Inscrição inscricao = new Inscrição(LocalDateTime.now(), true, participante, evento, List.of(atividades));
+        inscricao.setModalidade(modalidadeGratuita);
+        inscricao.setValorAplicado(java.math.BigDecimal.ZERO);
+        return inscricaoRepository.save(inscricao);
     }
 
     // ---------- POST /api/inscricoes — janela de inscrição ----------

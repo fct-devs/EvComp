@@ -34,14 +34,16 @@ public class InscricaoController {
     private final EventoRepository eventoRepository;
     private final AtividadeRepository atividadeRepository;
     private final PagamentoService pagamentoService;
+    private final br.unesp.fct.evcomp.repository.ModalidadeInscricaoRepository modalidadeRepository;
 
     @Autowired
-    public InscricaoController(InscricaoRepository inscricaoRepository, ParticipanteRepository participanteRepository, EventoRepository eventoRepository, AtividadeRepository atividadeRepository, PagamentoService pagamentoService) {
+    public InscricaoController(InscricaoRepository inscricaoRepository, ParticipanteRepository participanteRepository, EventoRepository eventoRepository, AtividadeRepository atividadeRepository, PagamentoService pagamentoService, br.unesp.fct.evcomp.repository.ModalidadeInscricaoRepository modalidadeRepository) {
         this.inscricaoRepository = inscricaoRepository;
         this.participanteRepository = participanteRepository;
         this.eventoRepository = eventoRepository;
         this.atividadeRepository = atividadeRepository;
         this.pagamentoService = pagamentoService;
+        this.modalidadeRepository = modalidadeRepository;
     }
 
     @PostMapping
@@ -59,13 +61,13 @@ public class InscricaoController {
             Integer eventoId = req.getEventoId();
             List<Integer> atividades = req.getAtividadeIds();
 
-            return inscreverParticipante(participanteId, eventoId, atividades);
+            return inscreverParticipante(participanteId, eventoId, atividades, req.getModalidadeId());
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("error", "Erro interno ao processar a inscrição. Tente novamente."));
         }
     }
 
-    public ResponseEntity<?> inscreverParticipante(Integer participanteId, Integer eventoId, List<Integer> atividades) {
+    public ResponseEntity<?> inscreverParticipante(Integer participanteId, Integer eventoId, List<Integer> atividades, Integer modalidadeId) {
         if (participanteId == null || eventoId == null) {
             return ResponseEntity.badRequest().body(Map.of("error", "Participante e Evento são obrigatórios."));
         }
@@ -96,9 +98,31 @@ public class InscricaoController {
         // Busca a Inscrição Atual
         Optional<br.unesp.fct.evcomp.domain.Inscrição> inscricaoExistente = inscricaoRepository.buscarPorParticipanteEEvento(participanteId, eventoId);
 
+        List<br.unesp.fct.evcomp.domain.ModalidadeInscricao> modalidadesAtivas = modalidadeRepository.buscarAtivasPorEvento(eventoId);
+        if (modalidadesAtivas.isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Este evento não possui modalidades de inscrição disponíveis."));
+        }
+
+        br.unesp.fct.evcomp.domain.ModalidadeInscricao modalidadeEscolhida;
+        if (modalidadeId != null) {
+            modalidadeEscolhida = modalidadesAtivas.stream()
+                .filter(m -> m.getId().equals(modalidadeId))
+                .findFirst()
+                .orElse(null);
+            if (modalidadeEscolhida == null) {
+                return ResponseEntity.badRequest().body(Map.of("error", "Modalidade de inscrição inválida ou indisponível para este evento."));
+            }
+        } else if (modalidadesAtivas.size() == 1) {
+            modalidadeEscolhida = modalidadesAtivas.get(0);
+        } else {
+            return ResponseEntity.badRequest().body(Map.of("error", "Selecione uma modalidade de inscrição."));
+        }
+
+        java.math.BigDecimal valorAplicado = modalidadeEscolhida.getValor();
+
         // Evento pago -> inscrição nasce bloqueada (status=false) até o pagamento ser aprovado;
         // evento gratuito -> nasce ativa (status=true), como antes.
-        boolean statusInicial = !eventoObj.ehPago();
+        boolean statusInicial = valorAplicado.compareTo(java.math.BigDecimal.ZERO) <= 0;
 
         br.unesp.fct.evcomp.domain.Inscrição inscricao;
         if (inscricaoExistente.isPresent()) {
@@ -116,6 +140,9 @@ public class InscricaoController {
                 LocalDateTime.now(), statusInicial, participante.get(), evento.get(), atividadesObjetos
             );
         }
+
+        inscricao.setModalidade(modalidadeEscolhida);
+        inscricao.setValorAplicado(valorAplicado);
 
         inscricaoRepository.salvarInscricao(inscricao);
 

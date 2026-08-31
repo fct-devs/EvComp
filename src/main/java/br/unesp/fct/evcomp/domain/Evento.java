@@ -36,9 +36,6 @@ public class Evento {
     @Column(name = "chave_pix")
     private String chavePix;
 
-    @Column(name = "valor_inscricao", precision = 10, scale = 2)
-    private java.math.BigDecimal valorInscricao;
-
     @Column(name = "data_inicio_inscricao", nullable = false)
     private LocalDate dataInicioInscricao;
 
@@ -70,23 +67,17 @@ public class Evento {
         map.put("link", this.link);
         map.put("tipoContabilizacao", this.tipoContabilizacao);
         map.put("chavePix", this.chavePix);
-        map.put("valorInscricao", this.valorInscricao);
         map.put("dataInicioInscricao", this.dataInicioInscricao);
         map.put("dataFimInscricao", this.dataFimInscricao);
 
         return map;
     }
 
-    public boolean ehPago() {
-        return this.valorInscricao != null
-            && this.valorInscricao.compareTo(java.math.BigDecimal.ZERO) > 0;
-    }
-
     public static Evento criarEvento(String titulo, LocalDate dataInicio, LocalDate dataTermino, String descricao, String link, TipoContabilizacao tipo, LocalDate dataInicioInscricao, LocalDate dataFimInscricao) {
-        return criarEvento(titulo, dataInicio, dataTermino, descricao, link, tipo, dataInicioInscricao, dataFimInscricao, null, null);
+        return criarEvento(titulo, dataInicio, dataTermino, descricao, link, tipo, dataInicioInscricao, dataFimInscricao, null);
     }
 
-    public static Evento criarEvento(String titulo, LocalDate dataInicio, LocalDate dataTermino, String descricao, String link, TipoContabilizacao tipo, LocalDate dataInicioInscricao, LocalDate dataFimInscricao, String chavePix, java.math.BigDecimal valorInscricao) {
+    public static Evento criarEvento(String titulo, LocalDate dataInicio, LocalDate dataTermino, String descricao, String link, TipoContabilizacao tipo, LocalDate dataInicioInscricao, LocalDate dataFimInscricao, String chavePix) {
         Evento evento = new Evento();
 
         evento.setTitulo(titulo);
@@ -96,7 +87,6 @@ public class Evento {
         evento.setLink(link);
         evento.setTipoContabilizacao(tipo);
         evento.setChavePix(chavePix);
-        evento.setValorInscricao(valorInscricao);
         evento.setDataInicioInscricao(dataInicioInscricao);
         evento.setDataFimInscricao(dataFimInscricao);
 
@@ -168,14 +158,6 @@ public class Evento {
 
     public void setChavePix(String chavePix) {
         this.chavePix = chavePix;
-    }
-
-    public java.math.BigDecimal getValorInscricao() {
-        return valorInscricao;
-    }
-
-    public void setValorInscricao(java.math.BigDecimal valorInscricao) {
-        this.valorInscricao = valorInscricao;
     }
 
     public LocalDate getDataInicioInscricao() {

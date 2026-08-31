@@ -35,7 +35,6 @@ CREATE TABLE `evento` (
   `link` varchar(255) DEFAULT NULL,
   `tipo_contabilizacao` varchar(20) NOT NULL,
   `chave_pix` varchar(255) DEFAULT NULL,
-  `valor_inscricao` decimal(10,2) DEFAULT NULL,
   `data_inicio_inscricao` date NOT NULL,
   `data_fim_inscricao` date NOT NULL,
   PRIMARY KEY (`idEvento`),
@@ -61,19 +60,36 @@ CREATE TABLE `atividade` (
   CONSTRAINT `fk_atividade_evento` FOREIGN KEY (`idEvento`) REFERENCES `evento` (`idEvento`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
+DROP TABLE IF EXISTS `modalidade_inscricao`;
+CREATE TABLE `modalidade_inscricao` (
+  `idModalidadeInscricao` int NOT NULL AUTO_INCREMENT,
+  `idEvento` int NOT NULL,
+  `nome` varchar(100) NOT NULL,
+  `descricao` varchar(500) DEFAULT NULL,
+  `valor` decimal(10,2) NOT NULL DEFAULT '0.00',
+  `ativo` tinyint(1) NOT NULL DEFAULT '1',
+  PRIMARY KEY (`idModalidadeInscricao`),
+  KEY `fk_ModalidadeInscricao_Evento_idx` (`idEvento`),
+  CONSTRAINT `fk_ModalidadeInscricao_Evento` FOREIGN KEY (`idEvento`) REFERENCES `evento` (`idEvento`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+
 DROP TABLE IF EXISTS `inscrição`;
 CREATE TABLE `inscrição` (
   `idInscrição` int NOT NULL AUTO_INCREMENT,
   `idEvento` int NOT NULL,
   `idUsuário` int NOT NULL,
+  `idModalidade` int NOT NULL,
   `data_inscricao` datetime NOT NULL,
   `status` tinyint(1) NOT NULL,
+  `valor_aplicado` decimal(10,2) NOT NULL DEFAULT '0.00',
   PRIMARY KEY (`idInscrição`),
   UNIQUE KEY `uk_usuario_evento` (`idEvento`,`idUsuário`),
   KEY `fk_Inscrição_Evento_idx` (`idEvento`),
   KEY `fk_Inscrição_Usuário1_idx` (`idUsuário`),
+  KEY `fk_Inscrição_ModalidadeInscricao_idx` (`idModalidade`),
   CONSTRAINT `fk_Inscrição_Evento` FOREIGN KEY (`idEvento`) REFERENCES `evento` (`idEvento`) ON DELETE CASCADE,
-  CONSTRAINT `fk_Inscrição_Usuário1` FOREIGN KEY (`idUsuário`) REFERENCES `usuário` (`idUsuário`) ON DELETE CASCADE
+  CONSTRAINT `fk_Inscrição_Usuário1` FOREIGN KEY (`idUsuário`) REFERENCES `usuário` (`idUsuário`) ON DELETE CASCADE,
+  CONSTRAINT `fk_Inscrição_ModalidadeInscricao` FOREIGN KEY (`idModalidade`) REFERENCES `modalidade_inscricao` (`idModalidadeInscricao`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 DROP TABLE IF EXISTS `inscrição_atividade`;
@@ -185,10 +201,10 @@ INSERT INTO `usuário` (`idUsuário`, `nome_completo`, `email`, `senha_hash`, `t
 UNLOCK TABLES;
 
 LOCK TABLES `evento` WRITE;
-INSERT INTO `evento` (`idEvento`, `titulo`, `data_inicio`, `data_termino`, `descricao`, `link`, `tipo_contabilizacao`, `chave_pix`, `valor_inscricao`, `data_inicio_inscricao`, `data_fim_inscricao`) VALUES
-(1, 'Semana da Computação 2027', '2027-08-10', '2027-08-15', 'Evento Futuro para testes de Inscrição e Gestão.', 'http://secomp2027.com.br', 'POR_ATIVIDADE', 'secomp@fct.unesp.br', 40.00, DATE_SUB(CURDATE(), INTERVAL 30 DAY), DATE_ADD(CURDATE(), INTERVAL 30 DAY)),
-(2, 'Workshop de IA 2025', '2025-05-10', '2025-05-12', 'Evento Passado para testes de Certificados e Relatórios.', '', 'POR_CARGA_TOTAL', '12345678000199', 25.50, '2025-04-01', '2025-05-08'),
-(3, 'Hackathon de Testes', CURDATE(), CURDATE(), 'Evento Ocorrendo Hoje para testar Registro de Presença com Coletor.', '', 'POR_ATIVIDADE', NULL, NULL, DATE_SUB(CURDATE(), INTERVAL 7 DAY), CURDATE());
+INSERT INTO `evento` (`idEvento`, `titulo`, `data_inicio`, `data_termino`, `descricao`, `link`, `tipo_contabilizacao`, `chave_pix`, `data_inicio_inscricao`, `data_fim_inscricao`) VALUES
+(1, 'Semana da Computação 2027', '2027-08-10', '2027-08-15', 'Evento Futuro para testes de Inscrição e Gestão.', 'http://secomp2027.com.br', 'POR_ATIVIDADE', 'secomp@fct.unesp.br', DATE_SUB(CURDATE(), INTERVAL 30 DAY), DATE_ADD(CURDATE(), INTERVAL 30 DAY)),
+(2, 'Workshop de IA 2025', '2025-05-10', '2025-05-12', 'Evento Passado para testes de Certificados e Relatórios.', '', 'POR_CARGA_TOTAL', '12345678000199', '2025-04-01', '2025-05-08'),
+(3, 'Hackathon de Testes', CURDATE(), CURDATE(), 'Evento Ocorrendo Hoje para testar Registro de Presença com Coletor.', '', 'POR_ATIVIDADE', NULL, DATE_SUB(CURDATE(), INTERVAL 7 DAY), CURDATE());
 UNLOCK TABLES;
 
 LOCK TABLES `atividade` WRITE;
@@ -201,12 +217,19 @@ INSERT INTO `ministrante_atividade` (`idUsuário`, `idAtividade`) VALUES
 (4, 2);
 UNLOCK TABLES;
 
+LOCK TABLES `modalidade_inscricao` WRITE;
+INSERT INTO `modalidade_inscricao` (`idModalidadeInscricao`, `idEvento`, `nome`, `descricao`, `valor`, `ativo`) VALUES
+(1, 1, 'Padrão', NULL, 40.00, 1),
+(2, 2, 'Padrão', NULL, 25.50, 1),
+(3, 3, 'Padrão', NULL, 0.00, 1);
+UNLOCK TABLES;
+
 LOCK TABLES `inscrição` WRITE;
-INSERT INTO `inscrição` (`idInscrição`, `data_inscricao`, `status`, `idUsuário`, `idEvento`) VALUES
-(1, NOW(), 1, 2, 2),
-(2, NOW(), 1, 2, 3),
-(3, NOW(), 1, 4, 1),
-(4, NOW(), 1, 4, 2);
+INSERT INTO `inscrição` (`idInscrição`, `data_inscricao`, `status`, `idUsuário`, `idEvento`, `idModalidade`, `valor_aplicado`) VALUES
+(1, NOW(), 1, 2, 2, 2, 25.50),
+(2, NOW(), 1, 2, 3, 3, 0.00),
+(3, NOW(), 1, 4, 1, 1, 40.00),
+(4, NOW(), 1, 4, 2, 2, 25.50);
 UNLOCK TABLES;
 
 LOCK TABLES `inscrição_atividade` WRITE;

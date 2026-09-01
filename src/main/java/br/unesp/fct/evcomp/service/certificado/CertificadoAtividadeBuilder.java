@@ -64,8 +64,12 @@ public class CertificadoAtividadeBuilder implements CertificadoBuilder {
             html = html.replace("$cargaHoraria", String.valueOf(cargaHoraria));
             
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd 'de' MMMM 'de' yyyy", new Locale("pt", "BR"));
-            String dataEmissaoStr = LocalDateTime.now().format(formatter);
-            String dataFimStr = atividade.getDataFim().format(formatter);
+            java.time.LocalDate dataFimEvento = (evento != null && evento.getDataFim() != null)
+                ? evento.getDataFim()
+                : (atividade != null && atividade.getDataFim() != null ? atividade.getDataFim() : java.time.LocalDate.now());
+            
+            String dataFimStr = atividade.getDataFim() != null ? atividade.getDataFim().format(formatter) : dataFimEvento.format(formatter);
+            String dataEmissaoStr = dataFimEvento.plusDays(1).format(formatter);
             
             html = html.replace("$dataFim", dataFimStr);
             html = html.replace("$dataAtual", dataEmissaoStr);

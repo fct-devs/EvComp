@@ -1,7 +1,6 @@
 package br.unesp.fct.evcomp.domain;
 
 import jakarta.persistence.*;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.time.LocalDateTime;
@@ -11,7 +10,6 @@ import java.time.LocalTime;
 @Entity
 @Table(name = "atividade")
 public class Atividade {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "idAtividade")
@@ -19,6 +17,9 @@ public class Atividade {
 
     @Column(nullable = false)
     private String titulo;
+
+    @Column(name = "local", length = 100)
+    private String local;
 
     @Column(columnDefinition = "TEXT", nullable = false)
     private String descricao;
@@ -79,7 +80,6 @@ public class Atividade {
     }
 
     public Atividade() {
-
     }
 
     public Atividade(String titulo, String descricao, String preRequisitos, LocalDate dataInicio, LocalTime horarioInicio, LocalDate dataFim, LocalTime horarioFim, int maxParticipantes, int cargaHorariaTotal, int cargaHorariaMinistrante) {
@@ -107,27 +107,43 @@ public class Atividade {
         java.util.Map<String, Object> dados = new java.util.HashMap<>();
         dados.put("id", this.id);
         dados.put("titulo", this.titulo);
+        dados.put("local", this.local);
         dados.put("descricao", this.descricao);
+        dados.put("pre_requisitos", this.preRequisitos);
         dados.put("preRequisitos", this.preRequisitos);
-        dados.put("dataInicio", this.dataInicio);
-        dados.put("horarioInicio", this.horarioInicio);
-        dados.put("dataFim", this.dataFim);
-        dados.put("horarioFim", this.horarioFim);
+        dados.put("data_inicio", this.dataInicio != null ? this.dataInicio.toString() : null);
+        dados.put("dataInicio", this.dataInicio != null ? this.dataInicio.toString() : null);
+        dados.put("data_termino", this.dataFim != null ? this.dataFim.toString() : null);
+        dados.put("dataTermino", this.dataFim != null ? this.dataFim.toString() : null);
+        dados.put("dataFim", this.dataFim != null ? this.dataFim.toString() : null);
+        dados.put("horario_inicio", this.horarioInicio != null ? this.horarioInicio.toString() : null);
+        dados.put("horarioInicio", this.horarioInicio != null ? this.horarioInicio.toString() : null);
+        dados.put("horario_termino", this.horarioFim != null ? this.horarioFim.toString() : null);
+        dados.put("horarioTermino", this.horarioFim != null ? this.horarioFim.toString() : null);
+        dados.put("horarioFim", this.horarioFim != null ? this.horarioFim.toString() : null);
+        dados.put("max_participantes", this.maxParticipantes);
         dados.put("maxParticipantes", this.maxParticipantes);
+        dados.put("carga_horaria_total", this.cargaHorariaTotal);
         dados.put("cargaHorariaTotal", this.cargaHorariaTotal);
+        dados.put("carga_horaria_ministrantes", this.cargaHorariaMinistrante);
         dados.put("cargaHorariaMinistrante", this.cargaHorariaMinistrante);
-        
+        dados.put("idEvento", this.evento != null ? this.evento.getId() : null);
+
         java.util.List<Integer> ministrantesIds = new java.util.ArrayList<>();
-        if (this.ministrantes != null) {
-            for (Usuário m : this.ministrantes) {
-                ministrantesIds.add(m.getId());
+        if (this.ministrantes != null && !this.ministrantes.isEmpty()) {
+            java.util.List<Object> minList = new java.util.ArrayList<>();
+            for (Usuário u : this.ministrantes) {
+                java.util.Map<String, Object> m = new java.util.HashMap<>();
+                m.put("id", u.getId());
+                m.put("nome", u.getNomeCompleto());
+                m.put("email", u.getEmail());
+                minList.add(m);
+                ministrantesIds.add(u.getId());
             }
+            dados.put("ministrantes", minList);
         }
         dados.put("ministrantes_ids", ministrantesIds);
-        
-        if (this.evento != null) {
-            dados.put("evento_id", this.evento.getId());
-        }
+        dados.put("ministrantesIds", ministrantesIds);
         return dados;
     }
 
@@ -137,15 +153,39 @@ public class Atividade {
             java.util.Map<String, Object> req = (java.util.Map<String, Object>) novosDadosAtividade;
             
             if (req.get("titulo") != null) this.titulo = String.valueOf(req.get("titulo"));
+            if (req.get("local") != null) this.local = String.valueOf(req.get("local"));
             if (req.get("descricao") != null) this.descricao = String.valueOf(req.get("descricao"));
             if (req.get("pre_requisitos") != null) this.preRequisitos = String.valueOf(req.get("pre_requisitos"));
-            if (req.get("data_inicio") != null) this.dataInicio = java.time.LocalDate.parse(String.valueOf(req.get("data_inicio")));
-            if (req.get("data_termino") != null) this.dataFim = java.time.LocalDate.parse(String.valueOf(req.get("data_termino")));
-            if (req.get("horario_inicio") != null) this.horarioInicio = java.time.LocalTime.parse(String.valueOf(req.get("horario_inicio")));
-            if (req.get("horario_termino") != null) this.horarioFim = java.time.LocalTime.parse(String.valueOf(req.get("horario_termino")));
+            if (req.get("preRequisitos") != null) this.preRequisitos = String.valueOf(req.get("preRequisitos"));
+            
+            String dIni = req.get("data_inicio") != null ? String.valueOf(req.get("data_inicio")) : (req.get("dataInicio") != null ? String.valueOf(req.get("dataInicio")) : null);
+            if (dIni != null && !dIni.isEmpty()) this.dataInicio = java.time.LocalDate.parse(dIni);
+
+            String dFim = req.get("data_termino") != null ? String.valueOf(req.get("data_termino")) : (req.get("dataTermino") != null ? String.valueOf(req.get("dataTermino")) : (req.get("dataFim") != null ? String.valueOf(req.get("dataFim")) : null));
+            if (dFim != null && !dFim.isEmpty()) this.dataFim = java.time.LocalDate.parse(dFim);
+
+            String hIni = req.get("horario_inicio") != null ? String.valueOf(req.get("horario_inicio")) : (req.get("horarioInicio") != null ? String.valueOf(req.get("horarioInicio")) : (req.get("horaInicio") != null ? String.valueOf(req.get("horaInicio")) : null));
+            if (hIni != null && !hIni.isEmpty()) {
+                if (hIni.length() == 5) hIni = hIni + ":00";
+                this.horarioInicio = java.time.LocalTime.parse(hIni);
+            }
+
+            String hFim = req.get("horario_termino") != null ? String.valueOf(req.get("horario_termino")) : (req.get("horarioFim") != null ? String.valueOf(req.get("horarioFim")) : (req.get("horaTermino") != null ? String.valueOf(req.get("horaTermino")) : null));
+            if (hFim != null && !hFim.isEmpty()) {
+                if (hFim.length() == 5) hFim = hFim + ":00";
+                this.horarioFim = java.time.LocalTime.parse(hFim);
+            }
+
             if (req.get("max_participantes") != null) this.maxParticipantes = Integer.parseInt(String.valueOf(req.get("max_participantes")));
+            else if (req.get("maxParticipantes") != null) this.maxParticipantes = Integer.parseInt(String.valueOf(req.get("maxParticipantes")));
+            else if (req.get("vagas") != null) this.maxParticipantes = Integer.parseInt(String.valueOf(req.get("vagas")));
+
             if (req.get("carga_horaria_total") != null) this.cargaHorariaTotal = Integer.parseInt(String.valueOf(req.get("carga_horaria_total")));
+            else if (req.get("cargaHorariaTotal") != null) this.cargaHorariaTotal = Integer.parseInt(String.valueOf(req.get("cargaHorariaTotal")));
+
             if (req.get("carga_horaria_ministrantes") != null) this.cargaHorariaMinistrante = Integer.parseInt(String.valueOf(req.get("carga_horaria_ministrantes")));
+            else if (req.get("cargaHorariaMinistrante") != null) this.cargaHorariaMinistrante = Integer.parseInt(String.valueOf(req.get("cargaHorariaMinistrante")));
+            else if (req.get("cargaHorariaMinistrantes") != null) this.cargaHorariaMinistrante = Integer.parseInt(String.valueOf(req.get("cargaHorariaMinistrantes")));
             
             if (req.get("novos_ministrantes") != null) {
                 this.ministrantes.clear();
@@ -157,7 +197,6 @@ public class Atividade {
             return false;
         }
     }
-
 
     public boolean verificarConflitoHorarios(Atividade outra) {
         LocalDateTime inicioEste = LocalDateTime.of(getDataInicio(), getHorarioInicio());
@@ -182,6 +221,14 @@ public class Atividade {
 
     public void setTitulo(String titulo) {
         this.titulo = titulo;
+    }
+
+    public String getLocal() {
+        return local;
+    }
+
+    public void setLocal(String local) {
+        this.local = local;
     }
 
     public String getDescricao() { return descricao; }
@@ -271,5 +318,4 @@ public class Atividade {
     public void setInscricoes(List<Inscrição> inscricoes) {
         this.inscricoes = inscricoes;
     }
-
 }

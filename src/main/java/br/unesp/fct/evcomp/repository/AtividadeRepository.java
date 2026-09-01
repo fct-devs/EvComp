@@ -9,7 +9,7 @@ public interface AtividadeRepository extends JpaRepository<Atividade, Integer> {
     @org.springframework.data.jpa.repository.Query("SELECT a FROM Atividade a WHERE a.titulo = :titulo AND a.evento.id = :eventoId")
     Optional<Atividade> buscarAtividadePorTitulo(@org.springframework.data.repository.query.Param("titulo") String titulo, @org.springframework.data.repository.query.Param("eventoId") Integer eventoId);
    
-    @org.springframework.data.jpa.repository.Query("SELECT a FROM Atividade a WHERE a.evento.id = :eventoId")
+    @org.springframework.data.jpa.repository.Query("SELECT a FROM Atividade a WHERE a.evento.id = :eventoId ORDER BY a.dataInicio ASC, a.horarioInicio ASC, a.titulo ASC")
     List<Atividade> buscarAtividadesPorEvento(@org.springframework.data.repository.query.Param("eventoId") Integer eventoId);
 
     @org.springframework.data.jpa.repository.Query("SELECT a.maxParticipantes - (SELECT COUNT(i) FROM Inscrição i JOIN i.atividade atv WHERE atv.id = a.id AND i.status = true) FROM Atividade a WHERE a.id = :atividadeId")

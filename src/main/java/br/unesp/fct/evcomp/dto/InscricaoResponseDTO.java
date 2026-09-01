@@ -16,6 +16,8 @@ public class InscricaoResponseDTO {
     private List<AtividadeResponseDTO> atividade;
     private ModalidadeInscricaoResponseDTO modalidade;
     private BigDecimal valorAplicado;
+    private String statusPagamento;
+    private String motivoRecusaPagamento;
 
     public InscricaoResponseDTO() {}
 
@@ -72,4 +74,10 @@ public class InscricaoResponseDTO {
 
     public BigDecimal getValorAplicado() { return valorAplicado; }
     public void setValorAplicado(BigDecimal valorAplicado) { this.valorAplicado = valorAplicado; }
+
+    public String getStatusPagamento() { return statusPagamento; }
+    public void setStatusPagamento(String statusPagamento) { this.statusPagamento = statusPagamento; }
+
+    public String getMotivoRecusaPagamento() { return motivoRecusaPagamento; }
+    public void setMotivoRecusaPagamento(String motivoRecusaPagamento) { this.motivoRecusaPagamento = motivoRecusaPagamento; }
 }

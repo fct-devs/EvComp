@@ -123,6 +123,7 @@ public class AtividadeController {
             }
 
             String descricao = String.valueOf(req.get("descricao"));
+            String local = req.get("local") != null ? String.valueOf(req.get("local")) : null;
             String preRequisitos = String.valueOf(req.getOrDefault("pre_requisitos", ""));
 
             LocalDate data_inicio = LocalDate.parse(String.valueOf(req.get("data_inicio")));
@@ -144,7 +145,7 @@ public class AtividadeController {
             }
 
             Atividade novaAtividade = Atividade.criarAtividade(titulo, descricao, preRequisitos, data_inicio, horario_inicio, data_termino, horario_termino, max_participantes, carga_horaria_total, ministrantes, carga_horaria_ministrantes);
-            
+            novaAtividade.setLocal(local);
             novaAtividade.setEvento(evento);
 
             boolean salva = atividadeRepository.salvarAtividade(novaAtividade);

@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 public class AtividadeResponseDTO {
     private Integer id;
     private String titulo;
+    private String local;
     private String descricao;
     private String preRequisitos;
     private LocalDate dataInicio;
@@ -31,6 +32,7 @@ public class AtividadeResponseDTO {
         AtividadeResponseDTO dto = new AtividadeResponseDTO();
         dto.setId(atividade.getId());
         dto.setTitulo(atividade.getTitulo());
+        dto.setLocal(atividade.getLocal());
         dto.setDescricao(atividade.getDescricao());
         dto.setPreRequisitos(atividade.getPreRequisitos());
         dto.setDataInicio(atividade.getDataInicio());
@@ -56,6 +58,9 @@ public class AtividadeResponseDTO {
 
     public String getTitulo() { return titulo; }
     public void setTitulo(String titulo) { this.titulo = titulo; }
+
+    public String getLocal() { return local; }
+    public void setLocal(String local) { this.local = local; }
 
     private void setDescricao(String descricao) { this.descricao = descricao; }
     public String getDescricao() { return descricao; }

@@ -42,10 +42,13 @@ out/
 ### Comprovantes de pagamento gravados localmente (pagamento.armazenamento=DISCO) ###
 uploads/
 
-### Passwords and Local Configs ###
+### Passwords, Database Seeds and Local Configs ###
 application-dev.properties
-src/main/resources/templates/template.html
-src/main/resources/templates/image3.jpeg
-src/main/resources/templates/image2.jpeg
-src/main/resources/templates/image1.png
 .env
+init.sql
+init-*.sql
+*.sql.bak
+uploads/
+
+### Templates de Certificados e Assinaturas Sensíveis ###
+src/main/resources/templates/

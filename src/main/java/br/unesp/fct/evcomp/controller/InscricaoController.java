@@ -179,26 +179,32 @@ public class InscricaoController {
             Evento evento = inscricao.getEvento();
             LocalDate hoje = LocalDate.now();
 
-            if (evento.getDataInicioInscricao() != null && evento.getDataFimInscricao() != null) {
-                if (hoje.isBefore(evento.getDataInicioInscricao()) || hoje.isAfter(evento.getDataFimInscricao())) {
-                    return ResponseEntity.badRequest().body(Map.of("error", "O período de inscrições para este evento está encerrado."));
-                }
+            br.unesp.fct.evcomp.domain.Pagamento pagamento = null;
+            try {
+                pagamento = pagamentoService.buscarPorInscricao(inscricaoId);
+            } catch (Exception ignored) {}
+
+            boolean pagamentoRecusado = pagamento != null && pagamento.getStatus() == br.unesp.fct.evcomp.domain.StatusPagamento.RECUSADO;
+            boolean periodoNormalAberto = (evento.getDataInicioInscricao() == null || !hoje.isBefore(evento.getDataInicioInscricao()))
+                                       && (evento.getDataFimInscricao() == null || !hoje.isAfter(evento.getDataFimInscricao()));
+            LocalDate dataLimiteRegularizacao = evento.getDataInicio() != null ? evento.getDataInicio() : evento.getDataFim();
+            boolean prazoRegularizacaoAberto = pagamentoRecusado && (dataLimiteRegularizacao == null || !hoje.isAfter(dataLimiteRegularizacao));
+
+            if (!periodoNormalAberto && !prazoRegularizacaoAberto) {
+                return ResponseEntity.badRequest().body(Map.of("error", "O período de inscrições para este evento está encerrado."));
             }
 
             if (req.getModalidadeId() != null) {
                 Integer modalidadeAtualId = inscricao.getModalidade() != null ? inscricao.getModalidade().getId() : null;
                 if (!req.getModalidadeId().equals(modalidadeAtualId)) {
-                    try {
-                        br.unesp.fct.evcomp.domain.Pagamento pagamento = pagamentoService.buscarPorInscricao(inscricaoId);
-                        if (pagamento != null) {
-                            if (pagamento.getStatus() == br.unesp.fct.evcomp.domain.StatusPagamento.APROVADO) {
-                                return ResponseEntity.badRequest().body(Map.of("error", "Não é permitido alterar a modalidade de uma inscrição com pagamento já aprovado."));
-                            }
-                            if (pagamento.getStatus() == br.unesp.fct.evcomp.domain.StatusPagamento.PENDENTE && pagamento.temComprovante()) {
-                                return ResponseEntity.badRequest().body(Map.of("error", "Não é permitido alterar a modalidade enquanto houver um comprovante sob análise. Aguarde a avaliação da organização."));
-                            }
+                    if (pagamento != null) {
+                        if (pagamento.getStatus() == br.unesp.fct.evcomp.domain.StatusPagamento.APROVADO) {
+                            return ResponseEntity.badRequest().body(Map.of("error", "Não é permitido alterar a modalidade de uma inscrição com pagamento já aprovado."));
                         }
-                    } catch (Exception ignored) {}
+                        if (pagamento.getStatus() == br.unesp.fct.evcomp.domain.StatusPagamento.PENDENTE && pagamento.temComprovante()) {
+                            return ResponseEntity.badRequest().body(Map.of("error", "Não é permitido alterar a modalidade enquanto houver um comprovante sob análise. Aguarde a avaliação da organização."));
+                        }
+                    }
 
                     Optional<br.unesp.fct.evcomp.domain.ModalidadeInscricao> novaModalidadeOpt = modalidadeRepository.buscarPorIdEEvento(req.getModalidadeId(), eventoId);
                     if (!novaModalidadeOpt.isPresent()) {
@@ -270,7 +276,17 @@ public class InscricaoController {
 
             List<br.unesp.fct.evcomp.domain.Inscrição> inscricoes = inscricaoRepository.buscarInscricoesPorParticipante(participanteId);
             List<br.unesp.fct.evcomp.dto.InscricaoResponseDTO> dtos = inscricoes.stream()
-                .map(br.unesp.fct.evcomp.dto.InscricaoResponseDTO::fromEntity)
+                .map(insc -> {
+                    br.unesp.fct.evcomp.dto.InscricaoResponseDTO dto = br.unesp.fct.evcomp.dto.InscricaoResponseDTO.fromEntity(insc);
+                    try {
+                        br.unesp.fct.evcomp.domain.Pagamento pag = pagamentoService.buscarPorInscricao(insc.getId());
+                        if (pag != null) {
+                            dto.setStatusPagamento(pag.getStatus() != null ? pag.getStatus().name() : null);
+                            dto.setMotivoRecusaPagamento(pag.getMotivoRecusa());
+                        }
+                    } catch (Exception ignored) {}
+                    return dto;
+                })
                 .toList();
             return ResponseEntity.ok(dtos);
         } catch (Exception e) {

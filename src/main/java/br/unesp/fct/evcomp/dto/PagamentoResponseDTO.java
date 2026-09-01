@@ -6,6 +6,7 @@ import br.unesp.fct.evcomp.domain.Pagamento;
 import br.unesp.fct.evcomp.domain.StatusPagamento;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 public class PagamentoResponseDTO {
@@ -26,6 +27,8 @@ public class PagamentoResponseDTO {
     private BigDecimal valorInscricao;
     private String modalidadeNome;
     private String urlComprovante;
+    private LocalDate dataInicioEvento;
+    private boolean eventoIniciado;
 
     public PagamentoResponseDTO() {}
 
@@ -56,6 +59,10 @@ public class PagamentoResponseDTO {
                 dto.setEventoId(evento.getId());
                 dto.setTituloEvento(evento.getTitulo());
                 dto.setChavePix(evento.getChavePix());
+                dto.setDataInicioEvento(evento.getDataInicio());
+                if (evento.getDataInicio() != null) {
+                    dto.setEventoIniciado(!LocalDate.now().isBefore(evento.getDataInicio()));
+                }
             }
 
             dto.setValorInscricao(inscricao.getValorAplicado());
@@ -114,4 +121,10 @@ public class PagamentoResponseDTO {
 
     public String getUrlComprovante() { return urlComprovante; }
     public void setUrlComprovante(String urlComprovante) { this.urlComprovante = urlComprovante; }
+
+    public LocalDate getDataInicioEvento() { return dataInicioEvento; }
+    public void setDataInicioEvento(LocalDate dataInicioEvento) { this.dataInicioEvento = dataInicioEvento; }
+
+    public boolean isEventoIniciado() { return eventoIniciado; }
+    public void setEventoIniciado(boolean eventoIniciado) { this.eventoIniciado = eventoIniciado; }
 }

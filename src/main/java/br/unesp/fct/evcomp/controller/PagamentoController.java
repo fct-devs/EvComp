@@ -148,7 +148,7 @@ public class PagamentoController {
             Pagamento avaliado = pagamentoService.avaliar(id, req.getNovoStatus(), req.getMotivoRecusa(), usuarioLogadoId(request));
 
             return ResponseEntity.ok(PagamentoPendenteResponseDTO.fromEntityAdmin(avaliado));
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException | IllegalStateException e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         } catch (Exception e) {
             return ResponseEntity.status(500).body(Map.of("error", "Ocorreu um erro ao avaliar o pagamento."));

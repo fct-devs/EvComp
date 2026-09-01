@@ -1,10 +1,12 @@
 package br.unesp.fct.evcomp.service.pagamento;
 
 import br.unesp.fct.evcomp.domain.Administrador;
+import br.unesp.fct.evcomp.domain.Atividade;
 import br.unesp.fct.evcomp.domain.Inscrição;
 import br.unesp.fct.evcomp.domain.Pagamento;
 import br.unesp.fct.evcomp.domain.StatusPagamento;
 import br.unesp.fct.evcomp.domain.TipoArmazenamento;
+import br.unesp.fct.evcomp.repository.AtividadeRepository;
 import br.unesp.fct.evcomp.repository.InscricaoRepository;
 import br.unesp.fct.evcomp.repository.PagamentoRepository;
 import br.unesp.fct.evcomp.repository.UsuarioRepository;
@@ -14,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,16 +36,19 @@ public class PagamentoService {
     private final PagamentoRepository pagamentoRepository;
     private final InscricaoRepository inscricaoRepository;
     private final UsuarioRepository usuarioRepository;
+    private final AtividadeRepository atividadeRepository;
     private final ArmazenamentoComprovanteFactory armazenamentoFactory;
 
     @Autowired
     public PagamentoService(PagamentoRepository pagamentoRepository,
                             InscricaoRepository inscricaoRepository,
                             UsuarioRepository usuarioRepository,
+                            AtividadeRepository atividadeRepository,
                             ArmazenamentoComprovanteFactory armazenamentoFactory) {
         this.pagamentoRepository = pagamentoRepository;
         this.inscricaoRepository = inscricaoRepository;
         this.usuarioRepository = usuarioRepository;
+        this.atividadeRepository = atividadeRepository;
         this.armazenamentoFactory = armazenamentoFactory;
     }
 
@@ -104,6 +110,14 @@ public class PagamentoService {
             throw new IllegalArgumentException("O pagamento desta inscrição já foi aprovado.");
         }
 
+        // Bloqueia upload após o início do evento
+        if (pagamento.getInscricao() != null && pagamento.getInscricao().getEvento() != null) {
+            java.time.LocalDate dataInicio = pagamento.getInscricao().getEvento().getDataInicio();
+            if (dataInicio != null && !LocalDate.now().isBefore(dataInicio)) {
+                throw new IllegalArgumentException("O evento já foi iniciado. O prazo para envio de comprovantes está encerrado.");
+            }
+        }
+
         ArquivoComprovante novoArquivo = validarEExtrair(arquivo);
 
         removerArquivoAtual(pagamento);
@@ -144,6 +158,17 @@ public class PagamentoService {
 
         if (pagamento.getStatus() == novoStatus) {
             throw new IllegalArgumentException("Este pagamento já está marcado como " + novoStatus + ".");
+        }
+
+        if (novoStatus == StatusPagamento.APROVADO) {
+            if (pagamento.getInscricao() != null && pagamento.getInscricao().getAtividade() != null) {
+                for (Atividade atv : pagamento.getInscricao().getAtividade()) {
+                    Integer vagas = atividadeRepository.consultarVagasDisponiveis(atv.getId());
+                    if (vagas != null && vagas <= 0) {
+                        throw new IllegalStateException("A atividade '" + atv.getTitulo() + "' atingiu a capacidade máxima (" + atv.getMaxParticipantes() + " vagas) e não possui mais vagas disponíveis.");
+                    }
+                }
+            }
         }
 
         pagamento.setStatus(novoStatus);

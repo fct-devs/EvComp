@@ -19,6 +19,8 @@ public class RelatorioStrategyFactory {
             return applicationContext.getBean(RelatorioParticipantesStrategy.class);
         } else if ("GRAFICO".equalsIgnoreCase(tipoRelatorio)) {
             return applicationContext.getBean(GraficoComparativoStrategy.class);
+        } else if ("PARTICIPANTES_APROVADOS".equalsIgnoreCase(tipoRelatorio)) {
+            return applicationContext.getBean(RelatorioParticipantesAprovadosStrategy.class);
         }
         throw new IllegalArgumentException("Tipo de relatório desconhecido: " + tipoRelatorio);
     }

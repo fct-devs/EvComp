@@ -60,6 +60,8 @@ public class RelatorioController {
             filename = "Relatorio Participantes - " + tituloEvento + ".pdf";
         } else if ("GRAFICO".equals(tipoRelatorio.name())) {
             filename = "Relatorio Grafico - " + tituloEvento + ".pdf";
+        } else if ("PARTICIPANTES_APROVADOS".equals(tipoRelatorio.name())) {
+            filename = "Relatorio Participantes Aprovados - " + tituloEvento + ".pdf";
         }
 
         return ResponseEntity.ok()

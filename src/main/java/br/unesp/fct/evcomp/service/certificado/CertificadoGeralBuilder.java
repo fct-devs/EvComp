@@ -63,8 +63,9 @@ public class CertificadoGeralBuilder implements CertificadoBuilder {
             html = html.replace("$cargaHoraria", String.valueOf(cargaHoraria));
             
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd 'de' MMMM 'de' yyyy", new Locale("pt", "BR"));
-            String dataEmissaoStr = LocalDateTime.now().format(formatter);
-            String dataFimStr = evento.getDataFim().format(formatter);
+            java.time.LocalDate dataFimEvento = evento.getDataFim() != null ? evento.getDataFim() : java.time.LocalDate.now();
+            String dataFimStr = dataFimEvento.format(formatter);
+            String dataEmissaoStr = dataFimEvento.plusDays(1).format(formatter);
             
             html = html.replace("$dataFim", dataFimStr);
             html = html.replace("$dataAtual", dataEmissaoStr);

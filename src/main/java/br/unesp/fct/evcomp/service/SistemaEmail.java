@@ -11,29 +11,42 @@ import java.util.HashMap;
 @Service
 public class SistemaEmail {
 
-    @Value("${resend.api.key}")
-    private String RESEND_API_KEY; 
+    @Value("${resend.api.key:}")
+    private String resendApiKey; 
+
+    @Value("${resend.email.from:EvComp <no-reply@secompp.com.br>}")
+    private String emailFrom;
+
+    @Value("${app.frontend.url:https://secompp.com.br}")
+    private String frontendUrl;
 
     public void enviarEmailRedefinicao(String email, int tokenGerado) {
+        if (resendApiKey == null || resendApiKey.isBlank()) {
+            return;
+        }
+
         try {
             RestTemplate restTemplate = new RestTemplate();
             HttpHeaders headers = new HttpHeaders();
 
             headers.setContentType(MediaType.APPLICATION_JSON);
-            headers.setBearerAuth(RESEND_API_KEY);
+            headers.setBearerAuth(resendApiKey);
+
+            String baseUrl = (frontendUrl != null && !frontendUrl.isBlank()) ? frontendUrl.replaceAll("/$", "") : "https://secompp.com.br";
+            String linkRedefinicao = baseUrl + "/redefinir-senha?token=" + tokenGerado;
 
             String htmlContent = "<div style=\"font-family: Arial, sans-serif; padding: 20px; color: #333;\">" +
                                  "<h2 style=\"color: #0056b3;\">Recuperação de Senha</h2>" +
-                                 "<p>Você solicitou a redefinição de senha para sua conta no <strong>EvComp</strong>.</p>" +
+                                 "<p>Você solicitou a redefinição de senha para sua conta no <strong>EvComp - SECOMPP 2026</strong>.</p>" +
                                  "<p>Seu código de segurança é: <strong style=\"font-size: 24px; color: #d9534f;\">" + tokenGerado + "</strong></p>" +
                                  "<p>Ou clique no link abaixo para redefinir diretamente:</p>" +
-                                 "<a href=\"http://localhost:3000/redefinir-senha?token=" + tokenGerado + "\" style=\"display: inline-block; padding: 10px 20px; margin-top: 10px; color: #fff; background-color: #0056b3; text-decoration: none; border-radius: 5px;\">Redefinir Senha</a>" +
+                                 "<a href=\"" + linkRedefinicao + "\" style=\"display: inline-block; padding: 10px 20px; margin-top: 10px; color: #fff; background-color: #0056b3; text-decoration: none; border-radius: 5px;\">Redefinir Senha</a>" +
                                  "<p style=\"margin-top: 20px; font-size: 12px; color: #777;\">Se você não solicitou isso, ignore este e-mail.</p>" +
                                  "</div>";
 
             Map<String, Object> requestBody = new HashMap<>();
 
-            requestBody.put("from", "EvComp <no-reply@ciriaco.dev>");
+            requestBody.put("from", emailFrom);
             requestBody.put("to", new String[]{email});
             requestBody.put("subject", "Recuperação de Senha - EvComp");
             requestBody.put("html", htmlContent);

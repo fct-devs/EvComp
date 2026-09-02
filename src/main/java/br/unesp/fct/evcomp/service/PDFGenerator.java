@@ -4,6 +4,7 @@ import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 
 @Service
 public class PDFGenerator {
@@ -12,7 +13,17 @@ public class PDFGenerator {
         try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
             PdfRendererBuilder builder = new PdfRendererBuilder();
             builder.useFastMode();
-            String baseUri = getClass().getResource("/templates/").toExternalForm();
+            
+            File externalDir = new File("/app/templates");
+            String baseUri;
+            if (externalDir.exists() && externalDir.isDirectory()) {
+                baseUri = externalDir.toURI().toString();
+            } else if (getClass().getResource("/templates/") != null) {
+                baseUri = getClass().getResource("/templates/").toExternalForm();
+            } else {
+                baseUri = new File(".").toURI().toString();
+            }
+
             builder.withHtmlContent(htmlContent, baseUri);
             builder.toStream(os);
             builder.run();

@@ -48,12 +48,19 @@ public class CertificadoAtividadeBuilder implements CertificadoBuilder {
         try {
             String templateName = "template.html";
             
-            InputStream in = getClass().getResourceAsStream("/templates/" + templateName);
+            java.io.File diskTemplate = new java.io.File("/app/templates/" + templateName);
+            InputStream in;
+            if (diskTemplate.exists()) {
+                in = new java.io.FileInputStream(diskTemplate);
+            } else {
+                in = getClass().getResourceAsStream("/templates/" + templateName);
+            }
             if (in == null) {
                 throw new RuntimeException("Template HTML não encontrado: " + templateName);
             }
 
             byte[] bdata = FileCopyUtils.copyToByteArray(in);
+            in.close();
             String html = new String(bdata, StandardCharsets.UTF_8);
 
             html = html.replace("$nomeParticipante", participante.getNomeCompleto().toUpperCase());

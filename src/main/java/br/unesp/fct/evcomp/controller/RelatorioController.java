@@ -31,9 +31,9 @@ public class RelatorioController {
     }
 
     @GetMapping("/eventos")
-    public ResponseEntity<?> solicitarEventosEncerrados() {
-        List<Evento> eventos = eventoRepository.findAll().stream()
-            .filter(ev -> !eventoRepository.checarAndamentoEvento(ev.getId()))
+    public ResponseEntity<?> solicitarEventos() {
+        List<Evento> eventos = eventoRepository.buscarTodosEventos().stream()
+            .sorted(java.util.Comparator.comparing(Evento::getId).reversed())
             .collect(Collectors.toList());
 
         return ResponseEntity.ok(eventos);

@@ -84,7 +84,7 @@ public class GraficoComparativoStrategy extends RelatorioStrategyFactory {
 
             int totalBlocks = 100;
             int internoBlocks = total > 0 ? (int) Math.round((double) internos / total * totalBlocks) : 0;
-            int externoBlocks = totalBlocks - internoBlocks;
+            int externoBlocks = total > 0 ? (totalBlocks - internoBlocks) : 0;
 
             html = html.replace("$wInterno", internoBlocks + "%");
             html = html.replace("$wExterno", externoBlocks + "%");

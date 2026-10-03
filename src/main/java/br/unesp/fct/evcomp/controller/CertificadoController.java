@@ -156,7 +156,7 @@ public class CertificadoController {
                     return ResponseEntity.ok(Map.of("liberado", false, "motivo", "A atividade (ou evento) ainda não foi finalizada."));
                 }
                 
-                boolean presencaAtividade = certificadoService.verificarPresencaPorAtividade(participanteId, atividadeId);
+                boolean presencaAtividade = certificadoService.verificarPresencaPorAtividade(atividadeId, participanteId);
               
                 boolean isMinistrante = atividade != null && atividade.getMinistrantes().stream().anyMatch(m -> m.getId().equals(participanteId));
                 
